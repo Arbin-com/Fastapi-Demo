@@ -25,3 +25,8 @@ export const login = async (
   });
   return response.data;
 };
+
+export const logout = async (): Promise<void> => {
+  await axios.post(`${BASE_URL}/logout`);
+  localStorage.removeItem("token");
+};
