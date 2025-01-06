@@ -8,6 +8,7 @@ import Button from "../components/Button";
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [ipaddress, setIpaddress] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -27,6 +28,14 @@ const LoginPage: React.FC = () => {
         <h1 className="text-2xl font-bold mb-4 text-center">
           Welcome to CTI demo
         </h1>
+
+        <div className="mb-4 w-full">
+          <InputField
+            value={ipaddress}
+            onChange={setIpaddress}
+            placeholder="ip address"
+          />
+        </div>
 
         <div className="mb-4 w-full">
           <InputField
