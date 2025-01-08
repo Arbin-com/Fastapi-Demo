@@ -31,14 +31,17 @@ class CTIWrapper(ArbinControl):
 
     def login(self, username, password, ipaddress, port):
         self.client = ArbinClient()
-        self.ConnectAsync(ipaddress, port, 0, 0)
+        self.client.ConnectAsync(ipaddress, int(port), 0, 0)
 
         self.Start()  # build connection between server and client
         self.ListenSocketRecv(self.client)
 
         # login
-        self.PostLogicConnect(self.client, True)
+        # self.PostLogicConnect(self.client, True)
         return self.PostUserLogin(self.client, username, password)
+
+    # def OnLogicConnectFeedBack(self, feedback):
+    #     self.logic_feedback =
 
     def OnUserLoginFeedBack(self, feedback):
         self.login_feedback = LoginFeedback(feedback)

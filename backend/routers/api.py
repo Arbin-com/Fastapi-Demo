@@ -8,8 +8,8 @@ cti_wrapper = CTIWrapper()
 
 router = APIRouter()
 
-CMD_TIMEOUT = 5
-FEEDBACK_TIMEOUT = 15
+CMD_TIMEOUT = 30
+FEEDBACK_TIMEOUT = 30
 
 
 @router.post("/login")
@@ -86,7 +86,7 @@ async def get_schedules():
         cmd_sent = False
         start_time = time.time()
         while not cmd_sent and (time.time() - start_time) < CMD_TIMEOUT:
-            cmd_sent = cti_wrapper.get_channel_info()
+            cmd_sent = cti_wrapper.browse_schedule_file()
             if not cmd_sent:
                 time.sleep(0.1)
         if not cmd_sent:
@@ -106,7 +106,7 @@ async def get_schedules():
         else:
             for file in feedback.dir_file_info:
                 message.update({"name": file.parent_dir_path})
-        cti_wrapper.get_channel_info_feedback = None
+        cti_wrapper.browse_schedule_file_feedback = None
         return message
 
     except Exception as e:
