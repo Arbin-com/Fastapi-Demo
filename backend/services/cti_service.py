@@ -1,11 +1,15 @@
 import clr  # type: ignore
+import os
+script_dir = os.path.dirname(os.path.abspath(__file__))
+dll_path = os.path.join(script_dir, "ArbinCTI.dll")
+if not os.path.exists(dll_path):
+    raise FileNotFoundError(f"Could not find DLL at {dll_path}")
+clr.AddReference(dll_path)
 from typing import Optional
-
-clr.AddReference("ArbinCTI")
-
 from ArbinCTI.Core import ArbinClient  # type: ignore
 from ArbinCTI.Core.Control import ArbinControl  # type: ignore
-from ctitoolbox import LoginFeedback, AssignScheduleFeedback, BrowseDirectoryFeedback, GetChannelDataFeedback, StartChannelFeedback, StopChannelFeedback
+from ctitoolbox import LoginFeedback, AssignScheduleFeedback, BrowseDirectoryFeedback, GetChannelDataFeedback, \
+    StartChannelFeedback, StopChannelFeedback
 
 
 class CTIWrapper(ArbinControl):
@@ -22,7 +26,6 @@ class CTIWrapper(ArbinControl):
         self.get_channel_info_feedback: Optional[GetChannelDataFeedback] = None
         self.start_channel_feedback: Optional[StartChannelFeedback] = None
         self.stop_channel_feedback: Optional[StopChannelFeedback] = None
-
 
     # region authentication
 
@@ -52,6 +55,7 @@ class CTIWrapper(ArbinControl):
     def OnBrowseDirectoryBack(self, feedback):
         self.browse_schedule_file_feedback = BrowseDirectoryFeedback(feedback)
 
+
     # endregion
 
     # region test command
@@ -59,8 +63,9 @@ class CTIWrapper(ArbinControl):
                         barcode: str, capacity: float,
                         MVUD1: float, MVUD2: float, MVUD3: float, MVUD4: float,
                         all_assign=True, channel_index=-1):
-        return self.PostAssignSchedule(self.client, schedule_name, barcode, capacity, MVUD1, MVUD2, MVUD3, MVUD4, all_assign,
-                                channel_index)
+        return self.PostAssignSchedule(self.client, schedule_name, barcode, capacity, MVUD1, MVUD2, MVUD3, MVUD4,
+                                       all_assign,
+                                       channel_index)
 
     def OnAssignScheduleFeedBack(self, feedback):
         self.assign_schedule_feedback = AssignScheduleFeedback(feedback)
@@ -74,13 +79,16 @@ class CTIWrapper(ArbinControl):
     def OnGetChannelsDataFeedBack(self, feedback):
         self.get_channel_info_feedback = GetChannelDataFeedback(feedback)
 
+    def start_channel(self, test_name: str, channels: list[int]):
+        return self.PostStartChannel(self.client, test_name, channels)
 
-    def start_channel(self):
-        pass
+    def OnStartChannelFeedBack(self, feedback):
+        self.start_channel_feedback = StartChannelFeedback(feedback)
 
-    def stop_channel(self):
-        pass
+    def stop_channel(self, channel: int, is_stop_all: bool):
+        return self.PostStopChannel(self.client, channel, is_stop_all)
+
+    def OnStopChannelFeedBack(self, feedback):
+        self.stop_channel_feedback = StopChannelFeedback(feedback)
 
     # endregion
-
-
