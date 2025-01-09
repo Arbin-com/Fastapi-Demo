@@ -1,5 +1,6 @@
 import clr  # type: ignore
 import os
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
 dll_path = os.path.join(script_dir, "ArbinCTI.dll")
 if not os.path.exists(dll_path):
@@ -37,27 +38,27 @@ class CTIWrapper(ArbinControl):
         self.ListenSocketRecv(self.client)
 
         # login
-        # self.PostLogicConnect(self.client, True)
+        self.PostLogicConnect(self.client, True)
         return self.PostUserLogin(self.client, username, password)
-
-    # def OnLogicConnectFeedBack(self, feedback):
-    #     self.logic_feedback =
 
     def OnUserLoginFeedBack(self, feedback):
         self.login_feedback = LoginFeedback(feedback)
 
-    def logout(self):
+    def OnLogicConnectFeedBack(self, feedback):
         pass
+
+    def logout(self):
+        self.client.ShutDown()
+        self.Exit()
 
     # endregion
 
     # region file operation
     def browse_schedule_file(self):
-        return self.PostBrowseDirectory(self.client, "SCHEDULE")
+        return self.PostBrowseDirectory(self.client, r"SCHEDULE")
 
     def OnBrowseDirectoryBack(self, feedback):
         self.browse_schedule_file_feedback = BrowseDirectoryFeedback(feedback)
-
 
     # endregion
 
@@ -76,10 +77,18 @@ class CTIWrapper(ArbinControl):
     # endregion
 
     # region channel operations
-    def get_channel_info(self):
-        return self.PostGetChannelsData(self.client, 1792)
+    def get_channel_info(self, channel_index: int = -1, data_type: int = 1792):
+        """
+        Use default channel type: All channel
+        :param data_type:
+        :param channel_index:
+        :return:
+        """
+        return self.PostGetChannelsData(self.client, data_type, channel_index)
 
     def OnGetChannelsDataFeedBack(self, feedback):
+        if feedback is None:
+            self.get_channel_info_feedback = None
         self.get_channel_info_feedback = GetChannelDataFeedback(feedback)
 
     def start_channel(self, test_name: str, channels: list[int]):

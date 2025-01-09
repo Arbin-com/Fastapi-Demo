@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends
-from services.cti_service import CTIWrapper
-from ctitoolbox import LoginFeedback, AssignScheduleFeedback, BrowseDirectoryFeedback, GetChannelDataFeedback, \
-    StartChannelFeedback, StopChannelFeedback
 import time
+
+from fastapi import APIRouter, HTTPException, Query
+
+from services.cti_service import CTIWrapper
 
 cti_wrapper = CTIWrapper()
 
@@ -13,7 +13,7 @@ FEEDBACK_TIMEOUT = 30
 
 
 @router.post("/login")
-async def login(username: str, password: str, ipaddress: str, port=9031):
+async def login(username="admin", password="000000", ipaddress="127.0.0.1", port=9031):
     cti_wrapper.login_feedback = None
     try:
         login_cmd_sent = False
@@ -39,6 +39,14 @@ async def login(username: str, password: str, ipaddress: str, port=9031):
 
         return {"feedback": cti_wrapper.login_feedback}
 
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/logout")
+async def logout():
+    try:
+        cti_wrapper.logout()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -70,11 +78,45 @@ async def get_channels_status():
         feedback = cti_wrapper.get_channel_info_feedback
         message = {}
         for data in feedback.channel_data:
-            message.update({data.channel_index: data.status})
+            message[data.channel_index] = data.status
 
         cti_wrapper.get_channel_info_feedback = None
 
         return message
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# TODO: add temperature data into the data list
+@router.get("/channels/data/{index}")
+async def get_channel_data(index: int = Query(..., ge=0)):
+    try:
+        cmd_sent = False
+        start_time = time.time()
+        while not cmd_sent and (time.time() - start_time) < CMD_TIMEOUT:
+            cmd_sent = cti_wrapper.get_channel_info(index)
+            if not cmd_sent:
+                time.sleep(0.1)
+
+        feedback_received = False
+        start_time = time.time()
+        while not feedback_received and (time.time() - start_time) < FEEDBACK_TIMEOUT:
+            feedback_received = cti_wrapper.get_channel_info_feedback is not None
+            if not feedback_received:
+                time.sleep(0.1)
+
+        if not feedback_received:
+            raise HTTPException(status_code=500,
+                                detail=f"Failed to get channel info feedback within {FEEDBACK_TIMEOUT} seconds.")
+        feedback = cti_wrapper.get_channel_info_feedback
+        message = {}
+        for data in feedback.channel_data:
+            message[data.channel_index] = {}
+            message[data.channel_index]['test_time'] = data.test_time
+            message[data.channel_index]['step_time'] = data.test_time
+            message[data.channel_index]['voltage'] = data.voltage
+            message[data.channel_index]['current'] = data.current
+            message[data.channel_index]['temperature'] = data.aux_data
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -100,12 +142,14 @@ async def get_schedules():
             if not feedback_received:
                 time.sleep(0.1)
         feedback = cti_wrapper.browse_schedule_file_feedback
-        message = {}
+        message = {"files": []}
         if feedback.result == feedback.result.CTI_BROWSE_DIRECTORY_FAILED:
             raise HTTPException(status_code=500, detail=f"Failed to get schedule file.")
         else:
-            for file in feedback.dir_file_info:
-                message.update({"name": file.parent_dir_path})
+            # import json
+            # message = json.dumps(feedback.to_dict())
+            for info in feedback.dir_file_info:
+                message["files"].append(info.parent_dir_path)
         cti_wrapper.browse_schedule_file_feedback = None
         return message
 
