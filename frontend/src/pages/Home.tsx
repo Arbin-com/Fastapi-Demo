@@ -19,8 +19,10 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     fetchFiles()
-      .then((data) => setFiles(data))
-      .catch((error) => console.error("Fetch scheduel file error", error));
+      .then((data: string[]) => {
+        setFiles(data.map((file) => ({ value: file, label: file })));
+      })
+      .catch((error) => console.error("Fetch files error", error));
   }, []);
 
   const handleStart = () => {
@@ -36,7 +38,7 @@ const Home: React.FC = () => {
   const handleLogout = async () => {
     try {
       setLoading(true);
-      await logout();
+      logout();
       navigate("/login");
     } catch (error) {
       console.error("Logout failed:", error);

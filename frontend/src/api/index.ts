@@ -1,11 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8000"; //the fastapi frontend
-
-export const fetchFiles = async (): Promise<string[]> => {
-  const response = await axios.get(`${BASE_URL}/files`);
-  return response.data;
-};
+const BASE_URL = "http://127.0.0.1:8080"; //the fastapi frontend
 
 export const startProcess = async (
   file: string,
@@ -28,10 +23,22 @@ export const login = async (
 
 export const logout = async () => {
   try {
-    const response = await axios.post("/logout");
+    const response = await axios.post(`${BASE_URL}/logout`);
     return response.data;
   } catch (error) {
     console.error("Logout API error", error);
+    throw error;
+  }
+};
+
+export const fetchFiles = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/schedules`);
+    console.log("Fetch files as below:");
+    console.log(response.data);
+    return response.data.files;
+  } catch (error) {
+    console.error("Failed to fetch schedule files:", error);
     throw error;
   }
 };
