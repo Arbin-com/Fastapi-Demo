@@ -1,6 +1,6 @@
 import time
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Path
 
 from services.cti_service import CTIWrapper
 
@@ -89,7 +89,7 @@ async def get_channels_status():
 
 
 @router.get("/channels/data/{index}")
-async def get_channel_data(index: int = Query(..., ge=0)):
+async def get_channel_data(index: int = Path(...)):
     try:
         cmd_sent = False
         start_time = time.time()
