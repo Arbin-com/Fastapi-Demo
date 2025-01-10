@@ -1,3 +1,15 @@
-.venv
+#Ignore IDE settings 
 .idea/
-../.idea/
+
+#Ignore Python cache
+__pycache__/
+
+#Ignore virtual environments
+.venv/
+env/
+
+#Ignore log files
+*.log
+
+#Ignore other temporary files
+.DS_Store

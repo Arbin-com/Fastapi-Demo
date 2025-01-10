@@ -87,7 +87,7 @@ async def get_channels_status():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# TODO: add temperature data into the data list
+
 @router.get("/channels/data/{index}")
 async def get_channel_data(index: int = Query(..., ge=0)):
     try:
@@ -116,7 +116,7 @@ async def get_channel_data(index: int = Query(..., ge=0)):
             message[data.channel_index]['step_time'] = data.test_time
             message[data.channel_index]['voltage'] = data.voltage
             message[data.channel_index]['current'] = data.current
-            message[data.channel_index]['temperature'] = data.aux_data
+            message[data.channel_index]['aux'] = data.aux_data
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

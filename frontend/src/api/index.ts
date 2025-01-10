@@ -26,7 +26,12 @@ export const login = async (
   return response.data;
 };
 
-export const logout = async (): Promise<void> => {
-  await axios.post(`${BASE_URL}/logout`);
-  localStorage.removeItem("token");
+export const logout = async () => {
+  try {
+    const response = await axios.post("/logout");
+    return response.data;
+  } catch (error) {
+    console.error("Logout API error", error);
+    throw error;
+  }
 };

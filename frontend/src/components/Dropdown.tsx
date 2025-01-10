@@ -1,7 +1,7 @@
 import React from "react";
 
 interface DropdownProps {
-  options: string[];
+  options: { value: string; label?: string; disabled?: boolean }[];
   selected: string;
   onChange: (value: string) => void;
 }
@@ -11,12 +11,19 @@ const Dropdown: React.FC<DropdownProps> = ({ options, selected, onChange }) => {
     <select
       value={selected}
       onChange={(e) => onChange(e.target.value)}
-      className="border border-gray-300 rounded p-2 w-full"
+      className="w-full p-2 border rounded"
     >
-      <option value="">-- Please choose your schedule file --</option>
-      {options.map((option, index) => (
-        <option key={index} value={option}>
-          {option}
+      <option value="" disabled>
+        Select an option
+      </option>
+      {options.map((option) => (
+        <option
+          key={option.value}
+          value={option.value}
+          disabled={option.disabled}
+          className={`${option.disabled ? "bg-gray-300 text-gray-500" : ""}`}
+        >
+          {option.label}
         </option>
       ))}
     </select>

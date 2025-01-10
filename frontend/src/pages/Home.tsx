@@ -6,11 +6,14 @@ import { fetchFiles, startProcess, logout } from "../api";
 import { useNavigate } from "react-router";
 
 const Home: React.FC = () => {
-  const [files, setFiles] = useState<string[]>([]);
+  const [files, setFiles] = useState<{ value: string }[]>([]);
   const [selectedFile, setSelectedFile] = useState<string>("");
-  const [channelId, setChannelId] = useState<string>("");
-  const [result, setResult] = useState<string>("");
+  const [channels, setChannels] = useState<{ value: string; status: string }[]>(
+    []
+  );
+  const [selectedChannel, setSelectedChannel] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [result, setResult] = useState<string>("");
 
   const navigate = useNavigate();
 
@@ -21,21 +24,24 @@ const Home: React.FC = () => {
   }, []);
 
   const handleStart = () => {
-    if (!selectedFile || !channelId) {
+    if (!selectedFile || !selectedChannel) {
       alert("Please choose schedule file and input channel id");
     }
 
-    startProcess(selectedFile, channelId)
+    startProcess(selectedFile, selectedChannel)
       .then((data) => setResult(data.message))
       .catch((error) => console.error("Error start channel:", error));
   };
 
   const handleLogout = async () => {
     try {
-      //await logout();
+      setLoading(true);
+      await logout();
       navigate("/login");
     } catch (error) {
       console.error("Logout failed:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,11 +67,11 @@ const Home: React.FC = () => {
           />
         </div>
         <div className="mb-4 w-full max-w-lg">
-          <label className="">Input Channel Id:</label>
-          <InputField
-            value={channelId}
-            placeholder={"Please input channel id"}
-            onChange={setChannelId}
+          <label className="">Choose Channel</label>
+          <Dropdown
+            options={channels}
+            selected={selectedChannel}
+            onChange={setSelectedChannel}
           />
         </div>
         <div className="mb-6">
