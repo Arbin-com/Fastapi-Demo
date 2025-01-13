@@ -53,7 +53,7 @@ async def login(username="admin", password="000000", ipaddress="127.0.0.1", port
             return {
                 "success": True,
                 "message": "Login succeed.",
-                "data": {"feedback": feedback}
+                "feedback": feedback
             }
 
     except Exception as e:
@@ -273,14 +273,79 @@ async def start_channel(test_name: str, channels: list[int]):
                 time.sleep(0.1)
 
         feedback = cti_wrapper.start_channel_feedback
-        if feedback.result == feedback.result.CTI_START_CHANNEL_FAILED:
-            raise HTTPException(status_code=500, detail="Failed to start channel.")
-
-        cti_wrapper.start_channel_feedback = None
-        return {"feedback": feedback}
+        if feedback.result == feedback.EStartToken.CTI_START_SUCCESS:
+            return {
+                "success": True,
+                "message": "Channel started successfully.",
+                "feedback": feedback
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_INDEX:
+            return {
+                "success": False,
+                "message": "Failed to start channels.",
+                "error": "Channel Index Error."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_ERROR:
+            return {
+                "success": False,
+                "message": "Failed to start channels.",
+                "error": "Channel Execution Error."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_CHANNEL_RUNNING:
+            return {
+                "success": False,
+                "message": "Failed to start channels.",
+                "error": "Channel is running."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_CHANNEL_NOT_CONNECT:
+            return {
+                "success": False,
+                "message": "Failed to start channels.",
+                "error": "Channel not connected."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_SCHEDULE_VALID:
+            return {
+                "success": False,
+                "message": "Failed to start channels.",
+                "error": "Schedule is not valid."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_NO_SCHEDULE_ASSIGNED:
+            return {
+                "success": False,
+                "message": "Failed to start channels.",
+                "error": "No Assigned Schedules."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_AUX_CHANNEL_MAP:
+            return {
+                "success": False,
+                "message": "Failed to start channels.",
+                "error": "Aux Mapping error."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_TESTNAME_TOO_LONG:
+            return {
+                "success": False,
+                "message": "Failed to start channels.",
+                "error": "Test name is too long."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_CSV_WAIT_TIME:
+            return {
+                "success": False,
+                "message": "Failed to start channels.",
+                "error": "Please wait 45s util csv file finished writing."
+            }
+        else:
+            return {
+                "success": False,
+                "message": "Failed to start channels.",
+                "error": f"Error occurs, feedback: {feedback.result}"
+            }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {
+            "success": False,
+            "message": "Failed to start channels. An unexpected error occurred.",
+            "error": str(e)
+        }
 
 
 @router.post("/channels/stop")
@@ -304,11 +369,23 @@ async def stop_channel(channel: int, is_stop_all: bool = False):
                 time.sleep(0.1)
 
         feedback = cti_wrapper.stop_channel_feedback
-        if feedback.result == feedback.result.CTI_STOP_CHANNEL_FAILED:
-            raise HTTPException(status_code=500, detail="Failed to stop channel.")
-
         cti_wrapper.stop_channel_feedback = None
-        return {"feedback": feedback}
+        if feedback == feedback.EStopToken.SUCCESS:
+            return {
+                "success": True,
+                "message": "Channel stopped successfully.",
+                "feedback": feedback
+            }
+        else:
+            return {
+                "success": False,
+                "message": "Failed to stop channel.",
+                "error": f"Failed to stop channel, feedback is {feedback.result}"
+            }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {
+            "success": False,
+            "message": "Failed to stop channels. An unexpected error occurred.",
+            "error": str(e)
+        }
