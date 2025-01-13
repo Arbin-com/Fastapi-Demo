@@ -1,6 +1,2 @@
-.idea/inspectionProfiles/profiles_settings.xml
-.idea/vcs.xml
-.idea/modules.xml
-.idea/misc.xml
-.idea/Fastapi-Demo.iml
-.idea/.gitignore
+#Ignore IDE settings 
+.idea/

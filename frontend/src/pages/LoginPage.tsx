@@ -14,8 +14,8 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      // const token = await login(username, password);
-      // localStorage.setItem("token", token);
+      //ipaddress set to default(127.0.0.1)
+      login(username, password);
       navigate("/home");
     } catch (err) {
       setError("please check your username and password");
