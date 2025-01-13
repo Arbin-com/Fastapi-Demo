@@ -26,13 +26,12 @@ const Home: React.FC = () => {
   }, []);
 
   const handleStart = () => {
-    if (!selectedFile || !selectedChannel) {
-      alert("Please choose schedule file and input channel id");
-    }
-
-    startProcess(selectedFile, selectedChannel)
-      .then((data) => setResult(data.message))
-      .catch((error) => console.error("Error start channel:", error));
+    // if (!selectedFile || !selectedChannel) {
+    //   alert("Please choose schedule file and input channel id");
+    // }
+    // startProcess(selectedFile, selectedChannel)
+    //   .then((data) => setResult(data.message))
+    //   .catch((error) => console.error("Error start channel:", error));
   };
 
   const handleLogout = async () => {

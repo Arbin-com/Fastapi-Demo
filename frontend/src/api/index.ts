@@ -1,22 +1,16 @@
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:8080"; //the fastapi frontend
-
-export const startProcess = async (
-  file: string,
-  channel: string
-): Promise<{ message: string }> => {
-  const response = await axios.post(`${BASE_URL}/start`, { file, channel });
-  return response.data;
-};
+const BASE_URL = "http://127.0.0.1:8080"; //the fastapi url
 
 export const login = async (
   username: string,
-  password: string
-): Promise<string> => {
+  password: string,
+  ipaddress?: string
+) => {
   const response = await axios.post(`${BASE_URL}/login`, {
     username,
     password,
+    ipaddress,
   });
   return response.data;
 };
@@ -42,3 +36,5 @@ export const fetchFiles = async () => {
     throw error;
   }
 };
+
+export const startProcess = async () => {};

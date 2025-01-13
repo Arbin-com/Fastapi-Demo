@@ -9,16 +9,24 @@ const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [ipaddress, setIpaddress] = useState("");
-  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>();
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
+      setIsLoading(true);
       //ipaddress set to default(127.0.0.1)
-      login(username, password);
-      navigate("/home");
+      const response = await login(username, password);
+      if (response.success) {
+        setIsLoading(false);
+        navigate("/home");
+      } else {
+        console.error("Login failed", response.error);
+        alert(`Error: ${response.error}`);
+      }
     } catch (err) {
-      setError("please check your username and password");
+      console.error("An unexpected error occurred", err);
+      alert("Failed to connect to server, please try again later.");
     }
   };
 
@@ -53,7 +61,11 @@ const LoginPage: React.FC = () => {
             placeholder="password"
           />
         </div>
-        <Button onClick={handleLogin} label="Sign In" />
+        <Button
+          onClick={handleLogin}
+          disabled={isLoading}
+          label={isLoading ? "Logging you in" : "Sign in"}
+        />
       </div>
     </div>
   );

@@ -14,7 +14,6 @@ FEEDBACK_TIMEOUT = 30
 
 @router.post("/login")
 async def login(username="admin", password="000000", ipaddress="127.0.0.1", port=9031):
-    cti_wrapper.login_feedback = None
     try:
         login_cmd_sent = False
         start_time = time.time()
@@ -35,9 +34,26 @@ async def login(username="admin", password="000000", ipaddress="127.0.0.1", port
                 time.sleep(0.1)
 
         if not login_feedback_received:
-            raise HTTPException(status_code=500, detail="Login failed.")
+            return {
+                "success": False,
+                "message": "Login failed.",
+                "error": "No login feedback received."
+            }
 
-        return {"feedback": cti_wrapper.login_feedback}
+        feedback = cti_wrapper.login_feedback
+
+        if feedback.result == feedback.ELoginResult.CTI_LOGIN_FAILED:
+            return {
+                "success": False,
+                "message": "Login failed.",
+                "error": "CTI Login failed."
+            }
+        else:
+            return {
+                "success": True,
+                "message": "Login succeed.",
+                "data": {"feedback": feedback.result}
+            }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
