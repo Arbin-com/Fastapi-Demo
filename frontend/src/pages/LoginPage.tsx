@@ -17,6 +17,7 @@ const LoginPage: React.FC = () => {
       setIsLoading(true);
       //ipaddress set to default(127.0.0.1)
       const response = await login(username, password);
+      console.log("The login response is", response);
       if (response.success) {
         setIsLoading(false);
         navigate("/home");

@@ -25,12 +25,12 @@ const Dropdown: React.FC<DropdownProps> = ({
       </option>
       {options.map((option) => (
         <option
-          key={option.value}
+          key={option.label}
           value={option.value}
           disabled={option.disabled}
           className={`${option.disabled ? "bg-gray-300 text-gray-500" : ""}`}
         >
-          {option.label}
+          {option.value}
         </option>
       ))}
     </select>

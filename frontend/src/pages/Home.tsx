@@ -22,13 +22,18 @@ const Home: React.FC = () => {
       try {
         setIsLoading(true);
         const response = await fetchFiles();
+        console.log("The response for load files is ", response);
         if (response.success) {
-          setFiles(
-            response.data.files.map((file: string) => ({ value: file }))
-          );
+          const file_list: { value: string }[] = [];
+          for (const file of response.files) {
+            console.log("The file is", file);
+            file_list.push({ value: file });
+            console.log("The file list is", file_list);
+          }
+          setFiles(file_list);
         } else {
-          console.error("Login failed.", response.error);
-          alert(`Error: ${response.error}`);
+          console.error("Load Files failed.", response.error);
+          alert(`Load File Error: ${response.error}`);
         }
       } catch (err) {
         console.error("An unexpected error occurred", err);
@@ -40,6 +45,10 @@ const Home: React.FC = () => {
 
     loadFiles();
   }, []);
+
+  // useEffect(() => {
+  //   console.log("The files state has been updated:", files);
+  // }, [files]);
 
   const handleStart = () => {
     // if (!selectedFile || !selectedChannel) {

@@ -31,14 +31,16 @@ class CTIWrapper(ArbinControl):
     # region authentication
 
     def login(self, username, password, ipaddress, port):
-        self.client = ArbinClient()
-        self.client.ConnectAsync(ipaddress, int(port), 0, 0)
+        if self.client is None or not self.client.IsConnected():
+            self.client = ArbinClient()
+            result = self.client.ConnectAsync(ipaddress, int(port), 0, 0)
+            print("Login async result", result)
 
-        self.Start()  # create thread to process the CTI packets
-        self.ListenSocketRecv(self.client)
+            self.Start()  # create thread to process the CTI packets
+            self.ListenSocketRecv(self.client)
 
-        # login
-        self.PostLogicConnect(self.client, True)
+            # login
+            self.PostLogicConnect(self.client, True)
         return self.PostUserLogin(self.client, username, password)
 
     def OnUserLoginFeedBack(self, feedback):
@@ -52,7 +54,7 @@ class CTIWrapper(ArbinControl):
         self.Exit()
 
     def isConnected(self):
-        return self.client.Connected
+        return self.client.IsConnected()
 
     # endregion
 

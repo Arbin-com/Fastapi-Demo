@@ -53,7 +53,7 @@ async def login(username="admin", password="000000", ipaddress="127.0.0.1", port
             return {
                 "success": True,
                 "message": "Login succeed.",
-                "data": {"feedback": feedback.result}
+                "data": {"feedback": feedback}
             }
 
     except Exception as e:
@@ -206,7 +206,7 @@ async def get_schedules():
         return {
             "success": False,
             "message": "An unexpected error occurred.",
-            "error": str(e)
+            "error": "Unexpected error occurred, " + str(e)
         }
 
 

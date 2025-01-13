@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:8080"; //the fastapi url
+const BASE_URL = "http://127.0.0.1:8000"; //the fastapi url
 
 export const login = async (
   username: string,
@@ -30,7 +30,7 @@ export const fetchFiles = async () => {
     const response = await axios.get(`${BASE_URL}/schedules`);
     console.log("Fetch files as below:");
     console.log(response.data);
-    return response.data.files;
+    return response.data;
   } catch (error) {
     console.error("Failed to fetch schedule files:", error);
     throw error;
