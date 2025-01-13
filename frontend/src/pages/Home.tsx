@@ -12,7 +12,7 @@ const Home: React.FC = () => {
     []
   );
   const [selectedChannel, setSelectedChannel] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setIsLoading] = useState<boolean>();
   const [result, setResult] = useState<string>("");
 
   const navigate = useNavigate();
@@ -36,13 +36,19 @@ const Home: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      setLoading(true);
-      logout();
-      navigate("/login");
+      setIsLoading(true);
+      const response = await logout();
+      if (response.success) {
+        console.log(response.message);
+        navigate("/login");
+      } else {
+        alert(response.message);
+      }
     } catch (error) {
       console.error("Logout failed:", error);
+      alert("An unexpected error occured. Please try again later.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -76,7 +82,7 @@ const Home: React.FC = () => {
           />
         </div>
         <div className="mb-6">
-          <Button onClick={handleStart} label={"start"} disabled={loading} />
+          <Button onClick={handleStart} label={"start"} />
         </div>
 
         <div

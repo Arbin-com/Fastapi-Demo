@@ -63,6 +63,21 @@ async def login(username="admin", password="000000", ipaddress="127.0.0.1", port
 async def logout():
     try:
         cti_wrapper.logout()
+        start_time = time.time()
+        while cti_wrapper.isConnected() and (time.time() - start_time) < CMD_TIMEOUT:
+            time.sleep(0.1)
+
+        if cti_wrapper.isConnected():
+            return {"success": False,
+                    "message": "Logout failed.",
+                    "error": f"Failed to disconnect with the ${CMD_TIMEOUT} seconds."
+                    }
+        else:
+            return {
+                "success": True,
+                "message": "Logout successfully"
+            }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

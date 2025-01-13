@@ -34,7 +34,7 @@ class CTIWrapper(ArbinControl):
         self.client = ArbinClient()
         self.client.ConnectAsync(ipaddress, int(port), 0, 0)
 
-        self.Start()  # build connection between server and client
+        self.Start()  # create thread to process the CTI packets
         self.ListenSocketRecv(self.client)
 
         # login
@@ -50,6 +50,9 @@ class CTIWrapper(ArbinControl):
     def logout(self):
         self.client.ShutDown()
         self.Exit()
+
+    def isConnected(self):
+        return self.client.Connected
 
     # endregion
 
