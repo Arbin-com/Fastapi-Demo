@@ -41,6 +41,7 @@ async def login(username="admin", password="000000", ipaddress="127.0.0.1", port
             }
 
         feedback = cti_wrapper.login_feedback
+        cti_wrapper.login_feedback = None
 
         if feedback.result == feedback.ELoginResult.CTI_LOGIN_FAILED:
             return {
@@ -69,17 +70,21 @@ async def logout():
 
         if cti_wrapper.isConnected():
             return {"success": False,
-                    "message": "Logout failed.",
+                    "message": "Log out failed.",
                     "error": f"Failed to disconnect with the ${CMD_TIMEOUT} seconds."
                     }
         else:
             return {
                 "success": True,
-                "message": "Logout successfully"
+                "message": "Log out successfully."
             }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {
+            "success": False,
+            "message": "An unexpected error occurred.",
+            "error": str(e)
+        }
 
 
 @router.get("/channels/status")
@@ -172,20 +177,37 @@ async def get_schedules():
             feedback_received = cti_wrapper.browse_schedule_file_feedback is not None
             if not feedback_received:
                 time.sleep(0.1)
+
+        if not feedback_received:
+            return {
+                "success": False,
+                "message": "Failed to get schedule files.",
+                "error": "Failed to get CTI feedback"
+            }
+
         feedback = cti_wrapper.browse_schedule_file_feedback
-        message = {"files": []}
-        if feedback.result == feedback.result.CTI_BROWSE_DIRECTORY_FAILED:
-            raise HTTPException(status_code=500, detail=f"Failed to get schedule file.")
-        else:
-            # import json
-            # message = json.dumps(feedback.to_dict())
-            for info in feedback.dir_file_info:
-                message["files"].append(info.parent_dir_path)
         cti_wrapper.browse_schedule_file_feedback = None
-        return message
+
+        if feedback.result == feedback.EResult.CTI_BROWSE_DIRECTORY_FAILED:
+            return {
+                "success": False,
+                "message": "Failed to get schedule files.",
+                "error": "CTI internal failure."
+            }
+
+        files = [info.parent_dir_path for info in feedback.dir_file_info]
+        return {
+            "success": True,
+            "message": "Schedules fetched successfully.",
+            "files": files
+        }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {
+            "success": False,
+            "message": "An unexpected error occurred.",
+            "error": str(e)
+        }
 
 
 @router.post("/schedules/assign")

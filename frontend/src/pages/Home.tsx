@@ -12,17 +12,33 @@ const Home: React.FC = () => {
     []
   );
   const [selectedChannel, setSelectedChannel] = useState<string>("");
-  const [loading, setIsLoading] = useState<boolean>();
+  const [isLoading, setIsLoading] = useState<boolean>();
   const [result, setResult] = useState<string>("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchFiles()
-      .then((data: string[]) => {
-        setFiles(data.map((file) => ({ value: file, label: file })));
-      })
-      .catch((error) => console.error("Fetch files error", error));
+    const loadFiles = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetchFiles();
+        if (response.success) {
+          setFiles(
+            response.data.files.map((file: string) => ({ value: file }))
+          );
+        } else {
+          console.error("Login failed.", response.error);
+          alert(`Error: ${response.error}`);
+        }
+      } catch (err) {
+        console.error("An unexpected error occurred", err);
+        alert("Failed to fetch schedule files, please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadFiles();
   }, []);
 
   const handleStart = () => {
@@ -54,9 +70,15 @@ const Home: React.FC = () => {
 
   return (
     <div className="relative">
+      {isLoading && (
+        <div className="absolute inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="text-white text-lg">Processing...</div>
+        </div>
+      )}
       <div className="absolute top-0 right-0">
         <button
           onClick={handleLogout}
+          disabled={isLoading}
           className="bg-gray-100 text-gray-700 px-4 py-2 mr-5 rounded-tl-lg border-b-2 border-gray-300 hover:bg-gray-200"
         >
           Sign out
@@ -71,6 +93,7 @@ const Home: React.FC = () => {
             options={files}
             selected={selectedFile}
             onChange={setSelectedFile}
+            disabled={isLoading}
           />
         </div>
         <div className="mb-4 w-full max-w-lg">
@@ -79,10 +102,11 @@ const Home: React.FC = () => {
             options={channels}
             selected={selectedChannel}
             onChange={setSelectedChannel}
+            disabled={isLoading}
           />
         </div>
         <div className="mb-6">
-          <Button onClick={handleStart} label={"start"} />
+          <Button onClick={handleStart} label={"start"} disabled={isLoading} />
         </div>
 
         <div
