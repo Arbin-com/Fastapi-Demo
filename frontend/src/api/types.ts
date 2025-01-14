@@ -3,6 +3,11 @@ export interface StartChannelRequest {
   channels: number[];
 }
 
+export interface StopChannelRequest {
+  channel_index: number;
+  is_stop_all: boolean;
+}
+
 export interface AssignScheduleRequest {
   schedule_name: string;
   barcode?: string;

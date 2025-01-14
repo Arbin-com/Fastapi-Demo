@@ -6,6 +6,11 @@ class StartChannelRequest(BaseModel):
     channels: list[int]
 
 
+class StopChannelRequest(BaseModel):
+    channel_index: int
+    is_stop_all: bool
+
+
 class AssignScheduleRequest(BaseModel):
     schedule_name: str
     barcode: str = ""

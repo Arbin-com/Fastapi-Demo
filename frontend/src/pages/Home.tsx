@@ -8,8 +8,13 @@ import {
   logout,
   startChannel,
   assignSchedule,
+  stopChannel,
 } from "../api";
-import { AssignScheduleRequest, StartChannelRequest } from "../api/types";
+import {
+  AssignScheduleRequest,
+  StartChannelRequest,
+  StopChannelRequest,
+} from "../api/types";
 import { useNavigate } from "react-router";
 
 const Home: React.FC = () => {
@@ -84,26 +89,6 @@ const Home: React.FC = () => {
     initializeApp();
   }, []);
 
-  const handleStart = async () => {
-    const requestData: StartChannelRequest = {
-      test_name: testName,
-      channels: [Number(selectedChannel)],
-    };
-
-    try {
-      const response = await startChannel(requestData);
-      if (response.success) {
-        console.log("start the channel successfully.");
-        setCanStart(false);
-      } else {
-        console.error("Start channel failed", response.error);
-        alert(`Start channel error: ${response.message}`);
-      }
-    } catch (err) {
-      console.error("An unexpected error occurred", err);
-    }
-  };
-
   const handleAssign = async () => {
     if (!selectedFile) {
       alert("Please select a schedule file first!");
@@ -134,7 +119,44 @@ const Home: React.FC = () => {
     }
   };
 
-  const handleStop = () => {};
+  const handleStart = async () => {
+    const requestData: StartChannelRequest = {
+      test_name: testName,
+      channels: [Number(selectedChannel)],
+    };
+
+    try {
+      const response = await startChannel(requestData);
+      if (response.success) {
+        console.log("start the channel successfully.");
+        setCanStart(false);
+      } else {
+        console.error("Start channel failed", response.error);
+        alert(`Start channel error: ${response.message}`);
+      }
+    } catch (err) {
+      console.error("An unexpected error occurred", err);
+    }
+  };
+
+  const handleStop = async () => {
+    const requestData: StopChannelRequest = {
+      channel_index: Number(selectedChannel),
+      is_stop_all: false,
+    };
+
+    try {
+      const response = await stopChannel(requestData);
+      if (response.success) {
+        setCanStart(true);
+      } else {
+        console.error("Failed to stop channel", response.error);
+        alert(`Failed to stop channel, ${response.message}`);
+      }
+    } catch (err) {
+      console.error("An unexpected error occurred", err);
+    }
+  };
 
   const handleLogout = async () => {
     try {

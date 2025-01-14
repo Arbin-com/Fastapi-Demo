@@ -1,5 +1,9 @@
 import axios from "axios";
-import { AssignScheduleRequest, StartChannelRequest } from "./types";
+import {
+  AssignScheduleRequest,
+  StartChannelRequest,
+  StopChannelRequest,
+} from "./types";
 
 const BASE_URL = "http://127.0.0.1:8000"; //the fastapi url
 
@@ -68,4 +72,12 @@ export const startChannel = async (data: StartChannelRequest) => {
   }
 };
 
-export const stopChannel = async () => {};
+export const stopChannel = async (data: StopChannelRequest) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/channels/stop`, data);
+    return response.data;
+  } catch (err) {
+    console.log("Failed to stop channel", err);
+    throw err;
+  }
+};
