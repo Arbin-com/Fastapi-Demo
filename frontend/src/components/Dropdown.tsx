@@ -1,7 +1,7 @@
 import React from "react";
 
 interface DropdownProps {
-  options: { value: string; label?: string; disabled?: boolean }[];
+  options: { value: string; status?: string }[];
   selected: string;
   onChange: (value: string) => void;
   disabled?: boolean;
@@ -25,12 +25,15 @@ const Dropdown: React.FC<DropdownProps> = ({
       </option>
       {options.map((option) => (
         <option
-          key={option.label}
+          key={option.value}
           value={option.value}
-          disabled={option.disabled}
-          className={`${option.disabled ? "bg-gray-300 text-gray-500" : ""}`}
+          disabled={option.status == "0" ? false : true}
+          className={`${
+            option.status == "0" ? "" : "bg-gray-300 text-gray-500"
+          }`}
         >
           {option.value}
+          {option.status}
         </option>
       ))}
     </select>

@@ -57,7 +57,11 @@ async def login(username="admin", password="000000", ipaddress="127.0.0.1", port
             }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {
+            "success": False,
+            "message": "An unexpected error occurred.",
+            "error": "An unexpected error occurred during login. " + str(e)
+        }
 
 
 @router.post("/logout")
@@ -108,20 +112,27 @@ async def get_channels_status():
                 time.sleep(0.1)
 
         if not feedback_received:
-            raise HTTPException(status_code=500,
-                                detail=f"Failed to get channel info feedback within {FEEDBACK_TIMEOUT} seconds.")
-
-        feedback = cti_wrapper.get_channel_info_feedback
-        message = {}
-        for data in feedback.channel_data:
-            message[data.channel_index] = data.status
-
-        cti_wrapper.get_channel_info_feedback = None
-
-        return message
+            return {
+                "success": False,
+                "message": "Failed to get channel status.",
+                "error": "Failed to get channel info"
+            }
+        else:
+            feedback = cti_wrapper.get_channel_info_feedback
+            cti_wrapper.get_channel_info_feedback = None
+            return {
+                "success": True,
+                "message": "Get channel status successfully",
+                # value will be used as index in the frontend
+                "feedback": [{"value":data.channel_index, "status": data.status} for data in feedback.channel_data]
+            }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {
+            "success": False,
+            "message": "An unexpected error occurred.",
+            "error": "Unexpected error when get channel status" + str(e)
+        }
 
 
 @router.get("/channels/data/{index}")
@@ -241,15 +252,39 @@ async def assign_schedule(schedule_name: str,
                 time.sleep(0.1)
 
         feedback = cti_wrapper.assign_schedule_feedback
-        if feedback.result == feedback.result.CTI_ASSIGN_SCHEDULE_FAILED:
-            raise HTTPException(status_code=500, detail="Failed to assign schedule.")
-
-        # clean
         cti_wrapper.assign_schedule_feedback = None
-        return {"message": "Schedule assigned successfully"}
+
+        if feedback.result == feedback.EAssignToken.CTI_ASSIGN_SUCCESS:
+            return {
+                "success": True,
+                "message": "Assign schedule successfully.",
+                "feedback": feedback
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_INDEX:
+            return {
+                "success": False,
+                "message": "Failed to assign schedule.",
+                "error": "Assign schedule: Channel index error."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_SCHEDULE_NAME_EMPTY_ERROR:
+            return {
+                "success": False,
+                "message": "Failed to assign schedule",
+                "error": "Assign schedule: schedule "
+            }
+        else:
+            return {
+                "success": False,
+                "message": "Failed to assign the schedule.",
+                "error": feedback
+            }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {
+            "success": False,
+            "message": "An unexpected error occurred.",
+            "error": "Unexpected error occurred, " + str(e)
+        }
 
 
 @router.post("/channels/start")

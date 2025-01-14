@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Dropdown from "../components/Dropdown";
 import Button from "../components/Button";
 import InputField from "../components/InputField";
-import { fetchFiles, startProcess, logout } from "../api";
+import { fetchFiles, fetchChannels, logout } from "../api";
 import { useNavigate } from "react-router";
 
 const Home: React.FC = () => {
@@ -16,39 +16,64 @@ const Home: React.FC = () => {
   const [result, setResult] = useState<string>("");
 
   const navigate = useNavigate();
+  const loadFiles = async () => {
+    try {
+      const response = await fetchFiles();
+      console.log("The response for load files is ", response);
+      if (response.success) {
+        const file_list: { value: string }[] = [];
+        for (const file of response.files) {
+          console.log("The file is", file);
+          file_list.push({ value: file });
+          console.log("The file list is", file_list);
+        }
+        setFiles(file_list);
+      } else {
+        console.error("Load Files failed.", response.error);
+        alert(`Load File Error: ${response.message}`);
+      }
+    } catch (err) {
+      console.error("An unexpected error occurred", err);
+      alert("Failed to fetch schedule files, please try again later.");
+    }
+  };
+
+  const loadChannels = async () => {
+    try {
+      const response = await fetchChannels();
+      console.log("The response for fetching files is: ", response);
+      if (response.success) {
+        const channel_list = response.feedback.map(
+          ({ value, status }: { value: string; status: string }) => {
+            return { value, status };
+          }
+        );
+        console.log("The schedule result is", channel_list);
+        setChannels(channel_list);
+      } else {
+        console.error("Load channel failed", response.error);
+        alert(`Load channel error: ${response.message}`);
+      }
+    } catch (err) {
+      console.error("An unexpected error occurred", err);
+    }
+  };
 
   useEffect(() => {
-    const loadFiles = async () => {
+    const initializeApp = async () => {
       try {
         setIsLoading(true);
-        const response = await fetchFiles();
-        console.log("The response for load files is ", response);
-        if (response.success) {
-          const file_list: { value: string }[] = [];
-          for (const file of response.files) {
-            console.log("The file is", file);
-            file_list.push({ value: file });
-            console.log("The file list is", file_list);
-          }
-          setFiles(file_list);
-        } else {
-          console.error("Load Files failed.", response.error);
-          alert(`Load File Error: ${response.error}`);
-        }
+        await Promise.all([loadFiles(), loadChannels()]);
       } catch (err) {
-        console.error("An unexpected error occurred", err);
-        alert("Failed to fetch schedule files, please try again later.");
+        console.log("An error occurred during initialization", err);
+        alert("Initialization failed, please try again.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadFiles();
+    initializeApp();
   }, []);
-
-  // useEffect(() => {
-  //   console.log("The files state has been updated:", files);
-  // }, [files]);
 
   const handleStart = () => {
     // if (!selectedFile || !selectedChannel) {
@@ -80,7 +105,7 @@ const Home: React.FC = () => {
   return (
     <div className="relative">
       {isLoading && (
-        <div className="absolute inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
           <div className="text-white text-lg">Processing...</div>
         </div>
       )}

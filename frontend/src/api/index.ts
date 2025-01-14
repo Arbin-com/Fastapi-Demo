@@ -32,8 +32,17 @@ export const fetchFiles = async () => {
     console.log(response.data);
     return response.data;
   } catch (error) {
-    console.error("Failed to fetch schedule files:", error);
+    console.error("Failed to fetch schedule files: ", error);
     throw error;
+  }
+};
+
+export const fetchChannels = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/channels/status`);
+    return response.data;
+  } catch (error) {
+    console.log("Failed to fetch channels: ", error);
   }
 };
 
