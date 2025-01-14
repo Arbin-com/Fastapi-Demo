@@ -3,7 +3,7 @@ import time
 from fastapi import APIRouter, HTTPException, Path
 
 from services.cti_service import CTIWrapper
-from services.cti_model import StartChannelRequest
+from services.cti_model import StartChannelRequest, AssignScheduleRequest
 
 cti_wrapper = CTIWrapper()
 
@@ -125,7 +125,7 @@ async def get_channels_status():
                 "success": True,
                 "message": "Get channel status successfully",
                 # value will be used as index in the frontend
-                "feedback": [{"value":data.channel_index, "status": data.status} for data in feedback.channel_data]
+                "feedback": [{"value": data.channel_index, "status": data.status} for data in feedback.channel_data]
             }
 
     except Exception as e:
@@ -223,16 +223,18 @@ async def get_schedules():
 
 
 @router.post("/schedules/assign")
-async def assign_schedule(schedule_name: str,
-                          barcode: str,
-                          capacity: float,
-                          MVUD1: float,
-                          MVUD2: float,
-                          MVUD3: float,
-                          MVUD4: float,
-                          all_assign: bool = True,
-                          channel_index: int = -1):
+async def assign_schedule(request: AssignScheduleRequest):
     try:
+        schedule_name = request.schedule_name
+        barcode = request.barcode
+        capacity = request.capacity
+        MVUD1 = request.MVUD1
+        MVUD2 = request.MVUD2
+        MVUD3 = request.MVUD3
+        MVUD4 = request.MVUD4
+        all_assign = request.all_assign
+        channel_index = request.channel_index
+
         cmd_sent = False
         start_time = time.time()
         while not cmd_sent and (time.time() - start_time) < CMD_TIMEOUT:

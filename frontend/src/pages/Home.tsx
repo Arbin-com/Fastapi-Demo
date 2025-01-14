@@ -2,8 +2,14 @@ import React, { useState, useEffect } from "react";
 import Dropdown from "../components/Dropdown";
 import Button from "../components/Button";
 import InputField from "../components/InputField";
-import { fetchFiles, fetchChannels, logout, startChannel } from "../api";
-import { StartChannelRequest } from "../api/types";
+import {
+  fetchFiles,
+  fetchChannels,
+  logout,
+  startChannel,
+  assignSchedule,
+} from "../api";
+import { AssignScheduleRequest, StartChannelRequest } from "../api/types";
 import { useNavigate } from "react-router";
 
 const Home: React.FC = () => {
@@ -15,7 +21,7 @@ const Home: React.FC = () => {
   const [selectedChannel, setSelectedChannel] = useState<string>("");
   const [testName, setTestName] = useState<string>("TestTest");
   const [isLoading, setIsLoading] = useState<boolean>();
-  const [canStart, setCanStart] = useState<boolean>();
+  const [canStart, setCanStart] = useState<boolean>(true);
   const [result, setResult] = useState<string>("");
 
   const navigate = useNavigate();
@@ -98,6 +104,36 @@ const Home: React.FC = () => {
     }
   };
 
+  const handleAssign = async () => {
+    if (!selectedFile) {
+      alert("Please select a schedule file first!");
+      return;
+    }
+    if (!selectedChannel) {
+      alert("Please select a channel to assign schedule!");
+      return;
+    }
+
+    const requestData: AssignScheduleRequest = {
+      schedule_name: selectedFile,
+      channel_index: Number(selectedChannel),
+    };
+
+    setIsLoading(true);
+    try {
+      const response = await assignSchedule(requestData);
+      if (response.success) {
+        setIsLoading(false);
+        console.log("Assign File successfully.");
+      } else {
+        console.error("Failed to assign schedule.", response.error);
+        alert(`Failed to assign schedule: ${response.message}`);
+      }
+    } catch (err) {
+      console.error("An unexpected error occurred", err);
+    }
+  };
+
   const handleStop = () => {};
 
   const handleLogout = async () => {
@@ -138,14 +174,14 @@ const Home: React.FC = () => {
       <div className="mt-5 flex flex-col items-center p-6">
         <h1 className="text-2xl font-bold mb-4 mt-5">CTI Demo</h1>
         <div className="mb-4 w-full max-w-lg">
-          <label>Choose schedule file:</label>
-          <Dropdown
-            options={files}
-            selected={selectedFile}
-            onChange={setSelectedFile}
-            disabled={isLoading}
+          <label>Input test name</label>
+          <InputField
+            value={testName}
+            placeholder="Input test name"
+            onChange={setTestName}
           />
         </div>
+
         <div className="mb-4 w-full max-w-lg">
           <label className="">Choose Channel</label>
           <Dropdown
@@ -155,14 +191,24 @@ const Home: React.FC = () => {
             disabled={isLoading}
           />
         </div>
+
         <div className="mb-4 w-full max-w-lg">
-          <label>Input test name</label>
-          <InputField
-            value={testName}
-            placeholder="Input test name"
-            onChange={setTestName}
-          />
+          <label>Choose schedule file:</label>
+          <div className="flex items-center gap-4">
+            <Dropdown
+              options={files}
+              selected={selectedFile}
+              onChange={setSelectedFile}
+              disabled={isLoading}
+            />
+            <Button
+              onClick={handleAssign}
+              label={"assign"}
+              disabled={isLoading || !selectedFile}
+            />
+          </div>
         </div>
+
         <div className="mb-6 flex gap-10">
           <Button
             onClick={handleStart}
