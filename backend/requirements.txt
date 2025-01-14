@@ -2,4 +2,4 @@ fastapi[standard]
 uvicorn[standard]
 pythonnet
 pytest
-./utils/ctitoolbox-0.1.0-py3-none-any.whl
+./utils/ctitoolbox-0.2.0-py3-none-any.whl

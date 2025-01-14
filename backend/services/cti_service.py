@@ -10,7 +10,7 @@ from typing import Optional
 from ArbinCTI.Core import ArbinClient  # type: ignore
 from ArbinCTI.Core.Control import ArbinControl  # type: ignore
 from ctitoolbox import LoginFeedback, AssignScheduleFeedback, BrowseDirectoryFeedback, GetChannelDataFeedback, \
-    StartChannelFeedback, StopChannelFeedback
+    StartChannelFeedback, StopChannelFeedback, CSTypeConverter
 
 
 class CTIWrapper(ArbinControl):
@@ -82,14 +82,16 @@ class CTIWrapper(ArbinControl):
     # endregion
 
     # region channel operations
-    def get_channel_info(self, channel_index: int = -1, data_type: int = 1792):
+    def get_channel_info(self, data_type: int = 1792,  channel_index: int = -1,):
         """
         Use default channel type: All channel
         :param data_type:
         :param channel_index:
         :return:
         """
-        return self.PostGetChannelsData(self.client, data_type, channel_index)
+        converted_data_type = CSTypeConverter.to_uint(data_type)
+        # channel index should be short
+        return self.PostGetChannelsData(self.client, converted_data_type, channel_index)
 
     def OnGetChannelsDataFeedBack(self, feedback):
         if feedback is None:
@@ -97,7 +99,8 @@ class CTIWrapper(ArbinControl):
         self.get_channel_info_feedback = GetChannelDataFeedback(feedback)
 
     def start_channel(self, test_name: str, channels: list[int]):
-        return self.PostStartChannel(self.client, test_name, channels)
+        converted_channels = CSTypeConverter.to_list(channels, CSTypeConverter.EDataType.USHORT)
+        return self.PostStartChannel(self.client, test_name, converted_channels)
 
     def OnStartChannelFeedBack(self, feedback):
         self.start_channel_feedback = StartChannelFeedback(feedback)

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import Dropdown from "../components/Dropdown";
 import Button from "../components/Button";
 import InputField from "../components/InputField";
-import { fetchFiles, fetchChannels, logout } from "../api";
+import { fetchFiles, fetchChannels, logout, startChannel } from "../api";
+import { StartChannelRequest } from "../api/types";
 import { useNavigate } from "react-router";
 
 const Home: React.FC = () => {
@@ -12,7 +13,9 @@ const Home: React.FC = () => {
     []
   );
   const [selectedChannel, setSelectedChannel] = useState<string>("");
+  const [testName, setTestName] = useState<string>("TestTest");
   const [isLoading, setIsLoading] = useState<boolean>();
+  const [canStart, setCanStart] = useState<boolean>();
   const [result, setResult] = useState<string>("");
 
   const navigate = useNavigate();
@@ -75,14 +78,27 @@ const Home: React.FC = () => {
     initializeApp();
   }, []);
 
-  const handleStart = () => {
-    // if (!selectedFile || !selectedChannel) {
-    //   alert("Please choose schedule file and input channel id");
-    // }
-    // startProcess(selectedFile, selectedChannel)
-    //   .then((data) => setResult(data.message))
-    //   .catch((error) => console.error("Error start channel:", error));
+  const handleStart = async () => {
+    const requestData: StartChannelRequest = {
+      test_name: testName,
+      channels: [Number(selectedChannel)],
+    };
+
+    try {
+      const response = await startChannel(requestData);
+      if (response.success) {
+        console.log("start the channel successfully.");
+        setCanStart(false);
+      } else {
+        console.error("Start channel failed", response.error);
+        alert(`Start channel error: ${response.message}`);
+      }
+    } catch (err) {
+      console.error("An unexpected error occurred", err);
+    }
   };
+
+  const handleStop = () => {};
 
   const handleLogout = async () => {
     try {
@@ -139,8 +155,25 @@ const Home: React.FC = () => {
             disabled={isLoading}
           />
         </div>
-        <div className="mb-6">
-          <Button onClick={handleStart} label={"start"} disabled={isLoading} />
+        <div className="mb-4 w-full max-w-lg">
+          <label>Input test name</label>
+          <InputField
+            value={testName}
+            placeholder="Input test name"
+            onChange={setTestName}
+          />
+        </div>
+        <div className="mb-6 flex gap-10">
+          <Button
+            onClick={handleStart}
+            label={"start"}
+            disabled={isLoading || !canStart}
+          />
+          <Button
+            onClick={handleStop}
+            label={"stop"}
+            disabled={isLoading || canStart}
+          />
         </div>
 
         <div

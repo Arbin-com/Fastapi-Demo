@@ -3,6 +3,7 @@ import time
 from fastapi import APIRouter, HTTPException, Path
 
 from services.cti_service import CTIWrapper
+from services.cti_model import StartChannelRequest
 
 cti_wrapper = CTIWrapper()
 
@@ -288,8 +289,10 @@ async def assign_schedule(schedule_name: str,
 
 
 @router.post("/channels/start")
-async def start_channel(test_name: str, channels: list[int]):
+async def start_channel(request: StartChannelRequest):
     try:
+        test_name = request.test_name
+        channels = request.channels
         cmd_sent = False
         start_time = time.time()
         while not cmd_sent and (time.time() - start_time) < CMD_TIMEOUT:

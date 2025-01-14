@@ -1,4 +1,5 @@
 import axios from "axios";
+import { StartChannelRequest } from "./types";
 
 const BASE_URL = "http://127.0.0.1:8000"; //the fastapi url
 
@@ -43,7 +44,20 @@ export const fetchChannels = async () => {
     return response.data;
   } catch (error) {
     console.log("Failed to fetch channels: ", error);
+    throw error;
   }
 };
 
-export const startProcess = async () => {};
+export const startChannel = async (data: StartChannelRequest) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/channels/start`, data);
+    return response.data;
+  } catch (err) {
+    console.log("Failed to start channel", err);
+    throw err;
+  }
+};
+
+export const stopChannel = async () => {};
+
+export const assignSchedule = async () => {};
