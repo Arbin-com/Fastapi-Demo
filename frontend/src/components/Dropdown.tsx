@@ -27,9 +27,11 @@ const Dropdown: React.FC<DropdownProps> = ({
         <option
           key={option.value}
           value={option.value}
-          disabled={option.status == "0" ? false : true}
+          disabled={option.status && option.status !== "Idle" ? true : false}
           className={`${
-            option.status == "0" ? "" : "bg-gray-300 text-gray-500"
+            option.status && option.status != "Idel"
+              ? "bg-gray-300 text-gray-500"
+              : ""
           }`}
         >
           {option.value}

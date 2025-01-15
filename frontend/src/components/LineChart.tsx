@@ -22,17 +22,23 @@ ChartJS.register(
 interface DynamicLineChartProps {
   title: string;
   data: { test_time: number; value: number }[];
+  color: string;
 }
 
-const DynamicLineChart: React.FC<DynamicLineChartProps> = ({ title, data }) => {
+const DynamicLineChart: React.FC<DynamicLineChartProps> = ({
+  title,
+  data,
+  color,
+}) => {
+  const transparentColor = color.replace("1)", "0.2)");
   const chartData = {
     labels: data.map((point) => point.test_time),
     datasets: [
       {
         label: title,
         data: data.map((point) => point.value),
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        borderColor: color,
+        backgroundColor: transparentColor,
         borderWidth: 2,
       },
     ],

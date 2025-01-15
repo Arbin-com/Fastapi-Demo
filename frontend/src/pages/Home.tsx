@@ -17,6 +17,7 @@ import {
   StopChannelRequest,
 } from "../api/types";
 import { useNavigate } from "react-router";
+import DynamicLineChart from "../components/LineChart";
 
 const Home: React.FC = () => {
   const [files, setFiles] = useState<{ value: string }[]>([]);
@@ -28,7 +29,16 @@ const Home: React.FC = () => {
   const [testName, setTestName] = useState<string>("TestTest");
   const [isLoading, setIsLoading] = useState<boolean>();
   const [canStart, setCanStart] = useState<boolean>(true);
-  const [result, setResult] = useState<string>("");
+  const [dataPoints, setDataPoints] = useState<
+    {
+      channel_index: number;
+      test_time: number;
+      step_time: number;
+      voltage: number;
+      current: number;
+      aux: any;
+    }[]
+  >([]);
 
   const navigate = useNavigate();
   const loadFiles = async () => {
@@ -79,7 +89,25 @@ const Home: React.FC = () => {
       const response = await fetchData();
 
       if (response.success) {
+        const newPoints = response.feedback.map((item: any) => ({
+          channel_index: item.channel_index,
+          test_time: item.test_time,
+          step_time: item.step_time,
+          voltage: item.voltage,
+          current: item.current,
+          aux: item.aux,
+        }));
+
+        setDataPoints((prev) => {
+          const updated = [...prev, ...newPoints];
+          if (updated.length > 60) {
+            return updated.slice(updated.length - 60);
+          }
+          return updated;
+        });
       } else {
+        console.error("Load data failed", response.error);
+        alert(`Load data error: ${response.message}`);
       }
     } catch (err) {
       console.error("Failed to fetch data points:", err);
@@ -257,11 +285,37 @@ const Home: React.FC = () => {
           />
         </div>
 
-        <div
-          className="w-full max-w-lg h-64 border-2 border-dashed border-gray-300 flex items-center justify-center"
-          style={{ backgroundColor: "#f9f9f9" }}
-        >
-          <span className="text-gray-500">Placeholder for future drawing</span>
+        <div className="w-full flex justify-between gap-4">
+          <div className="flex-1 border-2 border-dashed border-gray-300 p-4">
+            <DynamicLineChart
+              title="Voltage"
+              data={dataPoints.map((point) => ({
+                test_time: point.test_time,
+                value: point.voltage,
+              }))}
+              color="rgba(75, 192, 192, 1)"
+            />
+          </div>
+          <div className="flex-1 border-2 border-dashed border-gray-300 p-4">
+            <DynamicLineChart
+              title="Current"
+              data={dataPoints.map((point) => ({
+                test_time: point.test_time,
+                value: point.current,
+              }))}
+              color="rgba(192, 75, 192, 1)"
+            />
+          </div>
+          <div className="flex-1 border-2 border-dashed border-gray-300 p-4">
+            <DynamicLineChart
+              title="Aux"
+              data={dataPoints.map((point) => ({
+                test_time: point.test_time,
+                value: point.aux,
+              }))}
+              color="rgba(192, 192, 75, 1)"
+            />
+          </div>
         </div>
       </div>
     </div>
