@@ -9,8 +9,8 @@ cti_wrapper = CTIWrapper()
 
 router = APIRouter()
 
-CMD_TIMEOUT = 30
-FEEDBACK_TIMEOUT = 30
+CMD_TIMEOUT = 5
+FEEDBACK_TIMEOUT = 15
 
 
 @router.post("/login")
@@ -116,7 +116,7 @@ async def get_channels_status():
             return {
                 "success": False,
                 "message": "Failed to get channel status.",
-                "error": "Failed to get channel info"
+                "error": f"Failed to get channel info within {FEEDBACK_TIMEOUT} seconds"
             }
         else:
             feedback = cti_wrapper.get_channel_info_feedback
@@ -132,17 +132,18 @@ async def get_channels_status():
         return {
             "success": False,
             "message": "An unexpected error occurred.",
-            "error": "Unexpected error when get channel status" + str(e)
+            "error": "Unexpected error when get channel status, " + str(e)
         }
 
 
+# TODO:
 @router.get("/channels/data/{index}")
 async def get_channel_data(index: int = Path(...)):
     try:
         cmd_sent = False
         start_time = time.time()
         while not cmd_sent and (time.time() - start_time) < CMD_TIMEOUT:
-            cmd_sent = cti_wrapper.get_channel_info(index)
+            cmd_sent = cti_wrapper.get_channel_info(channel_index=index)
             if not cmd_sent:
                 time.sleep(0.1)
 
@@ -154,20 +155,28 @@ async def get_channel_data(index: int = Path(...)):
                 time.sleep(0.1)
 
         if not feedback_received:
-            raise HTTPException(status_code=500,
-                                detail=f"Failed to get channel info feedback within {FEEDBACK_TIMEOUT} seconds.")
+            return {
+                "success": False,
+                "message": "Failed to get channel data.",
+                "error": f"Failed to get channel data within {FEEDBACK_TIMEOUT} seconds."
+            }
+
         feedback = cti_wrapper.get_channel_info_feedback
-        message = {}
-        for data in feedback.channel_data:
-            message[data.channel_index] = {}
-            message[data.channel_index]['test_time'] = data.test_time
-            message[data.channel_index]['step_time'] = data.test_time
-            message[data.channel_index]['voltage'] = data.voltage
-            message[data.channel_index]['current'] = data.current
-            message[data.channel_index]['aux'] = data.aux_data
+        cti_wrapper.get_channel_info_feedback = None
+        return {
+            "success": True,
+            "message": "Get channel data successfully.",
+            "feedback": [{"channel_index": data.channel_index, "test_time": data.test_time, "step_time": data.step_time,
+                          "voltage": data.voltage, "current": data.current, "aux": data.aux_data} for data in
+                         feedback.channel_data]
+        }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {
+            "success": False,
+            "message": "An unexpected error occurred.",
+            "error": "Unexpected error when get channel status" + str(e)
+        }
 
 
 @router.get("/schedules")
@@ -222,6 +231,7 @@ async def get_schedules():
         }
 
 
+# TODO: Test sdx
 @router.post("/schedules/assign")
 async def assign_schedule(request: AssignScheduleRequest):
     try:
