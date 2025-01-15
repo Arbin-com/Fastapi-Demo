@@ -22,7 +22,7 @@ import DynamicLineChart from "../components/LineChart";
 const Home: React.FC = () => {
   const [files, setFiles] = useState<{ value: string }[]>([]);
   const [selectedFile, setSelectedFile] = useState<string>("");
-  const [channels, setChannels] = useState<{ value: string; status: string }[]>(
+  const [channels, setChannels] = useState<{ value: string; status: number }[]>(
     []
   );
   const [selectedChannel, setSelectedChannel] = useState<string>("");
@@ -69,7 +69,7 @@ const Home: React.FC = () => {
       console.log("The response for fetching files is: ", response);
       if (response.success) {
         const channel_list = response.feedback.map(
-          ({ value, status }: { value: string; status: string }) => {
+          ({ value, status }: { value: string; status: number }) => {
             return { value, status };
           }
         );
@@ -246,7 +246,7 @@ const Home: React.FC = () => {
         </div>
 
         <div className="mb-4 w-full max-w-lg">
-          <label className="">Choose Channel</label>
+          <label>Choose Channel:</label>
           <Dropdown
             options={channels}
             selected={selectedChannel}
