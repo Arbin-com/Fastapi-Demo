@@ -9,6 +9,7 @@ import {
   startChannel,
   assignSchedule,
   stopChannel,
+  fetchData,
 } from "../api";
 import {
   AssignScheduleRequest,
@@ -70,6 +71,18 @@ const Home: React.FC = () => {
       }
     } catch (err) {
       console.error("An unexpected error occurred", err);
+    }
+  };
+
+  const fetchDataPoints = async () => {
+    try {
+      const response = await fetchData();
+
+      if (response.success) {
+      } else {
+      }
+    } catch (err) {
+      console.error("Failed to fetch data points:", err);
     }
   };
 
@@ -170,7 +183,7 @@ const Home: React.FC = () => {
       }
     } catch (error) {
       console.error("Logout failed:", error);
-      alert("An unexpected error occured. Please try again later.");
+      alert("An unexpected error occurred. Please try again later.");
     } finally {
       setIsLoading(false);
     }

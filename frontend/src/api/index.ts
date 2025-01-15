@@ -81,3 +81,13 @@ export const stopChannel = async (data: StopChannelRequest) => {
     throw err;
   }
 };
+
+export const fetchData = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/test`);
+    return response.data;
+  } catch (err) {
+    console.log("Failed to fetch data", err);
+    throw err;
+  }
+};
