@@ -9,8 +9,8 @@ cti_wrapper = CTIWrapper()
 
 router = APIRouter()
 
-CMD_TIMEOUT = 5
-FEEDBACK_TIMEOUT = 15
+CMD_TIMEOUT = 1
+FEEDBACK_TIMEOUT = 1
 
 
 @router.post("/login")
@@ -167,7 +167,7 @@ async def get_channel_data(index: int = Path(...)):
             "success": True,
             "message": "Get channel data successfully.",
             "feedback": [{"channel_index": data.channel_index, "test_time": data.test_time, "step_time": data.step_time,
-                          "voltage": data.voltage, "current": data.current, "aux": data.aux_data} for data in
+                          "voltage": data.voltage, "current": data.current, "temp": data.auxs[1][0].value} for data in
                          feedback.channel_data]
         }
 
@@ -177,6 +177,7 @@ async def get_channel_data(index: int = Path(...)):
             "message": "An unexpected error occurred.",
             "error": "Unexpected error when get channel status" + str(e)
         }
+
 
 
 @router.get("/schedules")
