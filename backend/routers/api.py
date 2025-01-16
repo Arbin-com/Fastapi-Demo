@@ -3,7 +3,7 @@ import time
 from fastapi import APIRouter, HTTPException, Path
 
 from services.cti_service import CTIWrapper
-from services.cti_model import StartChannelRequest, AssignScheduleRequest, StopChannelRequest
+from services.cti_model import StartChannelRequest, AssignScheduleRequest, StopChannelRequest, StopChannelResponse
 
 cti_wrapper = CTIWrapper()
 
@@ -244,6 +244,8 @@ async def assign_schedule(request: AssignScheduleRequest):
         MVUD4 = request.MVUD4
         all_assign = request.all_assign
         channel_index = request.channel_index
+        print(
+            f"Type of assign schedule parameter,\n, type of MVUD1 {type(MVUD1)}, type of capacity {type(capacity)}, type of all_assign {type(all_assign)}, type of channel_index {type(channel_index)}")
 
         cmd_sent = False
         start_time = time.time()
@@ -344,50 +346,177 @@ async def start_channel(request: StartChannelRequest):
         elif feedback.result == feedback.EStartToken.CTI_START_CHANNEL_RUNNING:
             return {
                 "success": False,
-                "message": "Failed to start channels.",
+                "message": "Failed to start channels. Channel is running.",
                 "error": "Channel is running."
             }
         elif feedback.result == feedback.EStartToken.CTI_START_CHANNEL_NOT_CONNECT:
             return {
                 "success": False,
-                "message": "Failed to start channels.",
+                "message": "Failed to start channels. Channel not connected.",
                 "error": "Channel not connected."
             }
         elif feedback.result == feedback.EStartToken.CTI_START_SCHEDULE_VALID:
             return {
                 "success": False,
-                "message": "Failed to start channels.",
+                "message": "Warning: Schedule is not valid.",
                 "error": "Schedule is not valid."
             }
         elif feedback.result == feedback.EStartToken.CTI_START_NO_SCHEDULE_ASSIGNED:
             return {
                 "success": False,
-                "message": "Failed to start channels.",
+                "message": "Failed to start channels. No Assigned Schedules.",
                 "error": "No Assigned Schedules."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_SCHEDULE_VERSION:
+            return {
+                "success": False,
+                "message": "Warning: Schedule version is not consistent",
+                "error": "Schedule version not consistent"
+            }
+
+        elif feedback.result == feedback.EStartToken.CTI_START_POWER_PROTECTED:
+            return {
+                "success": False,
+                "message": "Warning: Power is protected.",
+                "error": "Power is protected."
+            }
+
+        elif feedback.result == feedback.EStartToken.CTI_START_RESULTS_FILE_SIZE_LIMIT:
+            return {
+                "success": False,
+                "message": "Warning: The RESULTS file is too large to open.",
+                "error": "The RESULTS file is too large to open"
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_STEP_NUMBER:
+            return {
+                "success": False,
+                "message": "Warning: Step number Error.",
+                "error": "Step number Error."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_NO_CAN_CONFIGURATON_ASSIGNED:
+            return {
+                "success": False,
+                "message": "Warning: No CAN configuration assign error.",
+                "error": "No CAN configuration assign error."
             }
         elif feedback.result == feedback.EStartToken.CTI_START_AUX_CHANNEL_MAP:
             return {
                 "success": False,
-                "message": "Failed to start channels.",
+                "message": "Warning: Aux Mapping error.",
                 "error": "Aux Mapping error."
             }
+        elif feedback.result == feedback.EStartToken.CTI_START_BUILD_AUX_COUNT:
+            return {
+                "success": False,
+                "message": "Warning: In Schedule file, AUX channel Number error.",
+                "error": "In Schedule file AUX channel Number error."
+            }
+
+        elif feedback.result == feedback.EStartToken.CTI_START_POWER_CLAMP_CHECK:
+            return {
+                "success": False,
+                "message": "Warning: PowerClamp the difference between the highest and the lowest values is zero.",
+                "error": "PowerClamp the difference between the highest and the lowest values is zero"
+            }
+
+        elif feedback.result == feedback.EStartToken.CTI_START_AI:
+            return {
+                "success": False,
+                "message": "Warning: In Schedule file AUX AI Map IV error.",
+                "error": "In Schedule file AUX AI Map IV error."
+            }
+
+        elif feedback.result == feedback.EStartToken.CTI_START_SAFOR_GROUPCHAN:
+            return {
+                "success": False,
+                "message": "Warning: Safor Groupchan. ",
+                "error": "Safor Groupchan."
+            }
+
+        elif feedback.result == feedback.EStartToken.CTI_START_BT6000RUNNINGGROUP:
+            return {
+                "success": False,
+                "message": "Warning: Bt6000 running group.",
+                "error": "Bt6000 running group."
+            }
+
+        elif feedback.result == feedback.EStartToken.CTI_START_CHANNEL_DOWNLOADING_SCHEDULE:
+            return {
+                "success": False,
+                "message": "Warning: Downloading schedule.",
+                "error": "Downloading schedule."
+            }
+
+        elif feedback.result == feedback.EStartToken.CTI_START_DATABASE_QUERY_TEST_NAME_ERROR:
+            return {
+                "success": False,
+                "message": "Warning: Database query text name error",
+                "error": "Database query text name error."
+            }
+
+        elif feedback.result == feedback.EStartToken.CTI_START_DATABASE_QUERY_TEST_NAME_ERROR:
+            return {
+                "success": False,
+                "message": "Warning: Test name error",
+                "error": "Test name error."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_GO_STEP:
+            return {
+                "success": False,
+                "message": "Warning: Step Error",
+                "error": "Step Error."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_INVALID_PARALLEL:
+            return {
+                "success": False,
+                "message": "Warning: Parallel error",
+                "error": "Parallel error."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_SAFETY:
+            return {
+                "success": False,
+                "message": "Warning: Safety error",
+                "error": "Safety error."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_SECHEDULE_NAME_DIFFERENT:
+            return {
+                "success": False,
+                "message": "Warning: Schedule name different error",
+                "error": "Schedule name different error."
+            }
+
+        elif feedback.result == feedback.EStartToken.CTI_START_BATTERYSIMULATION_NOT_PARALLEL:
+            return {
+                "success": False,
+                "message": "Warning: Battery simulation not parallel error.",
+                "error": "Battery simulation not parallel error."
+            }
+
+        elif feedback.result == feedback.EStartToken.CTI_START_CSV_WAIT_TIME:
+            return {
+                "success": False,
+                "message": "Warning: Failed to start channels.",
+                "error": "Please wait 45s util csv file finished writing."
+            }
+        elif feedback.result == feedback.EStartToken.CTI_START_CHANNEL_SUSPENT:
+            return {
+                "success": False,
+                "message": "Warning: Channel suspend.",
+                "error": "Channel suspend."
+            }
+
         elif feedback.result == feedback.EStartToken.CTI_START_TESTNAME_TOO_LONG:
             return {
                 "success": False,
                 "message": "Failed to start channels.",
                 "error": "Test name is too long."
             }
-        elif feedback.result == feedback.EStartToken.CTI_START_CSV_WAIT_TIME:
-            return {
-                "success": False,
-                "message": "Failed to start channels.",
-                "error": "Please wait 45s util csv file finished writing."
-            }
+
         else:
             return {
                 "success": False,
                 "message": "Failed to start channels.",
-                "error": f"Error occurs, feedback: {feedback.result}"
+                "error": f"Unknown Error occurs, feedback: {feedback.result}"
             }
 
     except Exception as e:
@@ -410,8 +539,11 @@ async def stop_channel(request: StopChannelRequest):
             if not cmd_sent:
                 time.sleep(0.1)
         if not cmd_sent:
-            raise HTTPException(status_code=500,
-                                detail=f"Failed to send stop channel command within {CMD_TIMEOUT} seconds.")
+            return {
+                "success": False,
+                "message": "Failed to stop channel.",
+                "error": f"Failed to send stop channel command within {CMD_TIMEOUT} seconds."
+            }
 
         feedback_received = False
         start_time = time.time()
@@ -420,19 +552,46 @@ async def stop_channel(request: StopChannelRequest):
             if not feedback_received:
                 time.sleep(0.1)
 
+        if not feedback_received:
+            return {
+                "success": False,
+                "message": "Failed to stop channel.",
+                "error": f"Failed to receive stop channel feedback within {FEEDBACK_TIMEOUT} seconds."
+            }
+
         feedback = cti_wrapper.stop_channel_feedback
         cti_wrapper.stop_channel_feedback = None
-        if feedback == feedback.EStopToken.SUCCESS:
+        print("IN my stop channel api, the result received is ", feedback)
+
+        if feedback.result == feedback.EStopToken.SUCCESS:
             return {
                 "success": True,
                 "message": "Channel stopped successfully.",
                 "feedback": feedback
             }
-        else:
+        elif feedback.result == feedback.EStopToken.STOP_INDEX:
             return {
                 "success": False,
-                "message": "Failed to stop channel.",
-                "error": f"Failed to stop channel, feedback is {feedback.result}"
+                "message": "Failed to stop channel,",
+                "error": "Failed to stop channel because index error."
+            }
+        elif feedback.result == feedback.EStopToken.STOP_ERROR:
+            return {
+                "success": False,
+                "message": "Failed to stop channel",
+                "error": "Failed to stop channel. Execution error."
+            }
+        elif feedback.result == feedback.EStopToken.STOP_NOT_RUNNING:
+            return {
+                "success": False,
+                "message": "Failed to stop channel",
+                "error": "Failed to stop channel. Channel is not running."
+            }
+        elif feedback.result == feedback.EStopToken.STOP_CHANNEL_NOT_CONNECT:
+            return {
+                "success": False,
+                "message": "Failed to stop channel",
+                "error": "Failed to stop channel. Channel is not connected."
             }
 
     except Exception as e:

@@ -85,7 +85,7 @@ class CTIWrapper(ArbinControl):
     def assign_schedule(self, schedule_name: str,
                         barcode: str, capacity: float,
                         MVUD1: float, MVUD2: float, MVUD3: float, MVUD4: float,
-                        all_assign=True, channel_index=-1):
+                        all_assign=False, channel_index=-1):
         # return self.PostAssignSchedule(self.client, "test2.sdx", barcode, Single(capacity), Single(MVUD1), Single(MVUD2), Single(MVUD3), Single(MVUD4),
         #                                all_assign,
         #                                channel_index)
