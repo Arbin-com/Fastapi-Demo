@@ -1,22 +1,45 @@
 import React from "react";
 
 interface DropdownProps {
-  options: string[];
+  options: { value: string; status?: number }[];
   selected: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ options, selected, onChange }) => {
+const Dropdown: React.FC<DropdownProps> = ({
+  options,
+  selected,
+  onChange,
+  disabled,
+}) => {
   return (
     <select
       value={selected}
+      disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
-      className="border border-gray-300 rounded p-2 w-full"
+      className="w-full p-2 border rounded"
     >
-      <option value="">-- Please choose your schedule file --</option>
-      {options.map((option, index) => (
-        <option key={index} value={option}>
-          {option}
+      <option value="" disabled>
+        Select an option
+      </option>
+      {options.map((option) => (
+        <option
+          key={option.value}
+          value={option.value}
+          disabled={
+            option.status !== undefined && ![0, 15].includes(option.status)
+          }
+          className={`flex items-center justify-between px-4 py-2 ${
+            option.status == undefined ||
+            (option.status !== undefined && [0, 15].includes(option.status))
+              ? ""
+              : "bg-gray-300 text-gray-500"
+          }`}
+        >
+          {option.status !== undefined
+            ? `Channel ${option.value + 1}`
+            : option.value}
         </option>
       ))}
     </select>
