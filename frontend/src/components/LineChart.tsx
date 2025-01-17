@@ -31,7 +31,6 @@ const DynamicLineChart: React.FC<DynamicLineChartProps> = ({
   color,
 }) => {
   const transparentColor = color.replace("1)", "0.2)");
-  console.log("In chart the data is ", data);
   const chartData = {
     labels: data.map((point) => point.test_time.toFixed(2)),
     datasets: [
