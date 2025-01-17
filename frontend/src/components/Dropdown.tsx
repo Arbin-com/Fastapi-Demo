@@ -27,19 +27,19 @@ const Dropdown: React.FC<DropdownProps> = ({
         <option
           key={option.value}
           value={option.value}
-          disabled={option.status !== undefined && option.status !== 0}
+          disabled={
+            option.status !== undefined && ![0, 15].includes(option.status)
+          }
           className={`flex items-center justify-between px-4 py-2 ${
             option.status == undefined ||
-            (option.status !== undefined && option.status === 0)
+            (option.status !== undefined && [0, 15].includes(option.status))
               ? ""
               : "bg-gray-300 text-gray-500"
           }`}
         >
-          <div className="bg-red-150">
-            {option.status !== undefined
-              ? option.value
-              : `Channel ${option.value + 1}`}
-          </div>
+          {option.status !== undefined
+            ? `Channel ${option.value + 1}`
+            : option.value}
         </option>
       ))}
     </select>

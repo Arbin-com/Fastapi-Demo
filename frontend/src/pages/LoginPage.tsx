@@ -1,21 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { login } from "../api";
-import { logout } from "../api";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [ipaddress, setIpaddress] = useState("");
+  const [ipaddress, setIpaddress] = useState("127.0.0.1");
   const [isLoading, setIsLoading] = useState<boolean>();
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
       setIsLoading(true);
-      //ipaddress set to default(127.0.0.1)
       const response = await login(username, password);
       console.log("The login response is", response);
       if (response.success) {

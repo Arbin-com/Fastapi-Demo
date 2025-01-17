@@ -119,7 +119,7 @@ class CTIWrapper(ArbinControl):
     def OnGetChannelsDataFeedBack(self, feedback):
         try:
             self.get_channel_info_feedback = GetChannelDataFeedback(feedback)
-            print(self.get_channel_info_feedback.channel_data[0].auxs)
+            # print(self.get_channel_info_feedback.channel_data[0].auxs)
             # for item in feedback.m_Channels[0].Auxs:
             #     print("aux", item[GetChannelDataFeedback.ChannelInfo.AuxType.T.value])
             #

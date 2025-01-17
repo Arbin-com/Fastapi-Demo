@@ -31,15 +31,16 @@ const DynamicLineChart: React.FC<DynamicLineChartProps> = ({
   color,
 }) => {
   const transparentColor = color.replace("1)", "0.2)");
+  console.log("In chart the data is ", data);
   const chartData = {
-    labels: data.map((point) => point.test_time),
+    labels: data.map((point) => point.test_time.toFixed(2)),
     datasets: [
       {
         label: title,
-        data: data.map((point) => point.value),
+        data: data.map((point) => point.value.toFixed(1)),
         borderColor: color,
         backgroundColor: transparentColor,
-        borderWidth: 2,
+        borderWidth: 1,
       },
     ],
   };
@@ -47,8 +48,20 @@ const DynamicLineChart: React.FC<DynamicLineChartProps> = ({
   const chartOptions = {
     responsive: true,
     scales: {
-      x: { title: { display: true, text: "Time (s)" } },
-      y: { title: { display: true, text: title } },
+      x: {
+        title: { display: true, text: "Time (s)" },
+      },
+      y: {
+        title: { display: true, text: title },
+      },
+    },
+    layout: {
+      padding: {
+        left: 0,
+        right: 0,
+        top: 10,
+        bottom: 10,
+      },
     },
   };
 

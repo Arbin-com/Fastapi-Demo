@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Dropdown from "../components/Dropdown";
 import Button from "../components/Button";
 import InputField from "../components/InputField";
@@ -26,9 +26,11 @@ const Home: React.FC = () => {
     []
   );
   const [selectedChannel, setSelectedChannel] = useState<string>("");
-  const [testName, setTestName] = useState<string>("TestTest");
+  const [testName, setTestName] = useState<string>("test_demo");
   const [isLoading, setIsLoading] = useState<boolean>();
   const [canStart, setCanStart] = useState<boolean>(true);
+  const [isFetchingData, setIsFetchingData] = useState<boolean>(false);
+
   const [dataPoints, setDataPoints] = useState<
     {
       channel_index: number;
@@ -36,7 +38,7 @@ const Home: React.FC = () => {
       step_time: number;
       voltage: number;
       current: number;
-      aux: any;
+      temp: any;
     }[]
   >([]);
 
@@ -84,26 +86,40 @@ const Home: React.FC = () => {
     }
   };
 
-  const fetchDataPoints = async () => {
+  const fetchDataPoints = useCallback(async () => {
+    console.log(
+      "Fetching data for channel",
+      selectedChannel,
+      " at ",
+      new Date().toISOString()
+    );
     try {
-      const response = await fetchData();
-
+      console.log(
+        `Now the channle is ${selectedChannel}, number version is ${Number(
+          selectedChannel
+        )}`
+      );
+      const response = await fetchData(Number(selectedChannel));
+      console.log(`The selected channel is ${selectedChannel}`);
       if (response.success) {
-        const newPoints = response.feedback.map((item: any) => ({
-          channel_index: item.channel_index,
-          test_time: item.test_time,
-          step_time: item.step_time,
-          voltage: item.voltage,
-          current: item.current,
-          aux: item.aux,
-        }));
+        const newPoints = response.feedback
+          .filter((item: any) => item.channel_index === Number(selectedChannel))
+          .map((item: any) => ({
+            channel_index: item.channel_index,
+            test_time: item.test_time,
+            step_time: item.step_time,
+            voltage: item.voltage,
+            current: item.current,
+            temp: item.temp,
+          }));
 
+        console.log("In this round, new Points is ", newPoints);
         setDataPoints((prev) => {
           const updated = [...prev, ...newPoints];
-          if (updated.length > 60) {
-            return updated.slice(updated.length - 60);
-          }
-          return updated;
+          // console.log("This is updated result", updated);
+          return updated.length > 10
+            ? updated.slice(updated.length - 10)
+            : updated;
         });
       } else {
         console.error("Load data failed", response.error);
@@ -112,7 +128,21 @@ const Home: React.FC = () => {
     } catch (err) {
       console.error("Failed to fetch data points:", err);
     }
-  };
+  }, [selectedChannel]);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    if (isFetchingData) {
+      interval = setInterval(fetchDataPoints, 1000); //get data points every second
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isFetchingData]);
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -156,7 +186,12 @@ const Home: React.FC = () => {
         alert(`Failed to assign schedule: ${response.message}`);
       }
     } catch (err) {
-      console.error("An unexpected error occurred", err);
+      console.error(
+        "An unexpected error occurred during assign schedules: ",
+        err
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -171,6 +206,7 @@ const Home: React.FC = () => {
       if (response.success) {
         console.log("start the channel successfully.");
         setCanStart(false);
+        setIsFetchingData(true);
       } else {
         console.error("Start channel failed", response.error);
         alert(`Start channel error: ${response.message}`);
@@ -189,7 +225,9 @@ const Home: React.FC = () => {
     try {
       const response = await stopChannel(requestData);
       if (response.success) {
+        console.log("Stop channel successfully.");
         setCanStart(true);
+        setIsFetchingData(false);
       } else {
         console.error("Failed to stop channel", response.error);
         alert(`Failed to stop channel, ${response.message}`);
@@ -236,14 +274,6 @@ const Home: React.FC = () => {
 
       <div className="mt-5 flex flex-col items-center p-6">
         <h1 className="text-2xl font-bold mb-4 mt-5">CTI Demo</h1>
-        <div className="mb-4 w-full max-w-lg">
-          <label>Input test name</label>
-          <InputField
-            value={testName}
-            placeholder="Input test name"
-            onChange={setTestName}
-          />
-        </div>
 
         <div className="mb-4 w-full max-w-lg">
           <label>Choose Channel:</label>
@@ -270,6 +300,15 @@ const Home: React.FC = () => {
               disabled={isLoading || !selectedFile}
             />
           </div>
+        </div>
+
+        <div className="mb-4 w-full max-w-lg">
+          <label>Input test name</label>
+          <InputField
+            value={testName}
+            placeholder="Input test name"
+            onChange={setTestName}
+          />
         </div>
 
         <div className="mb-6 flex gap-10">
@@ -308,10 +347,10 @@ const Home: React.FC = () => {
           </div>
           <div className="flex-1 border-2 border-dashed border-gray-300 p-4">
             <DynamicLineChart
-              title="Aux"
+              title="Temperature"
               data={dataPoints.map((point) => ({
                 test_time: point.test_time,
-                value: point.aux,
+                value: point.temp,
               }))}
               color="rgba(192, 192, 75, 1)"
             />

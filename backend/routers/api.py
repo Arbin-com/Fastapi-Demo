@@ -158,26 +158,33 @@ async def get_channel_data(index: int = Path(...)):
             return {
                 "success": False,
                 "message": "Failed to get channel data.",
-                "error": f"Failed to get channel data within {FEEDBACK_TIMEOUT} seconds."
+                "error": f"Failed to load data within {FEEDBACK_TIMEOUT} seconds."
             }
 
         feedback = cti_wrapper.get_channel_info_feedback
         cti_wrapper.get_channel_info_feedback = None
+        print("The fetch data feedback is: ",
+              [{"channel_index": data.channel_index, "test_time": data.test_time, "step_time": data.step_time,
+                "voltage": data.voltage, "current": data.current, "temp": data.auxs} for data in
+               feedback.channel_data if data.channel_index == index])
+
         return {
             "success": True,
             "message": "Get channel data successfully.",
+            # "feedback": [{"channel_index": data.channel_index, "test_time": data.test_time, "step_time": data.step_time,
+            #               "voltage": data.voltage, "current": data.current, "temp": data.auxs[1][0].value} for data in
+            #              feedback.channel_data]
             "feedback": [{"channel_index": data.channel_index, "test_time": data.test_time, "step_time": data.step_time,
                           "voltage": data.voltage, "current": data.current, "temp": data.auxs[1][0].value} for data in
-                         feedback.channel_data]
+                         feedback.channel_data if data.channel_index == index]
         }
 
     except Exception as e:
         return {
             "success": False,
             "message": "An unexpected error occurred.",
-            "error": "Unexpected error when get channel status" + str(e)
+            "error": "Unexpected error when load data" + str(e)
         }
-
 
 
 @router.get("/schedules")
@@ -245,8 +252,7 @@ async def assign_schedule(request: AssignScheduleRequest):
         MVUD4 = request.MVUD4
         all_assign = request.all_assign
         channel_index = request.channel_index
-        print(
-            f"Type of assign schedule parameter,\n, type of MVUD1 {type(MVUD1)}, type of capacity {type(capacity)}, type of all_assign {type(all_assign)}, type of channel_index {type(channel_index)}")
+
 
         cmd_sent = False
         start_time = time.time()
@@ -562,7 +568,7 @@ async def stop_channel(request: StopChannelRequest):
 
         feedback = cti_wrapper.stop_channel_feedback
         cti_wrapper.stop_channel_feedback = None
-        print("IN my stop channel api, the result received is ", feedback)
+        # print("IN my stop channel api, the result received is ", feedback)
 
         if feedback.result == feedback.EStopToken.SUCCESS:
             return {
