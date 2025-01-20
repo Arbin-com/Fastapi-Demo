@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
-import { login } from "../api";
+import { setBaseUrl, login } from "../api";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 
@@ -14,6 +14,8 @@ const LoginPage: React.FC = () => {
   const handleLogin = async () => {
     try {
       setIsLoading(true);
+      setBaseUrl(ipaddress);
+      console.log("ipaddress is ", ipaddress);
       const response = await login(username, password);
       console.log("The login response is", response);
       if (response.success) {
