@@ -5,8 +5,14 @@ import {
   StopChannelRequest,
 } from "./types";
 
-const BASE_URL = "http://127.0.0.1:8000"; //the fastapi url
+//ip address should correspond to the server where the FastAPI is currently running.
+let BASE_URL = "http://127.0.0.1:8000";
 
+export const setBaseUrl = (ipaddress: string) => {
+  BASE_URL = `http://${ipaddress}:8000`;
+};
+
+// APIs
 export const login = async (
   username: string,
   password: string,
