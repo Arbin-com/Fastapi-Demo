@@ -114,7 +114,7 @@ class TestCTIWrapper(unittest.TestCase):
         #
         # browse_feedback = MagicMock()
         # self.cti_wrapper.OnBrowseDirectoryBack(browse_feedback)
-        # self.assertEqual(self.cti_wrapper.browse_schedule_file_feedback, BrowseDirectoryFeedback(browse_feedback))
+        # self.assertEqual(self.cti_wrapper.browse_file_feedback, BrowseDirectoryFeedback(browse_feedback))
         #
         # channel_feedback = MagicMock()
         # self.cti_wrapper.OnGetChannelsDataFeedBack(channel_feedback)

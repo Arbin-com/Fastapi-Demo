@@ -29,3 +29,10 @@ class AssignScheduleRequest(BaseModel):
     MVUD4: float = 0.0
     all_assign: bool = False
     channel_index: int = -1
+
+
+class AssignFileRequest(BaseModel):
+    file_name: str
+    all_assign: bool = False
+    file_type: int
+    channels: list[int]
