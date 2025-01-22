@@ -19,6 +19,8 @@ ChartJS.register(
   Legend
 );
 
+import { ChartOptions } from "chart.js";
+
 interface DynamicLineChartProps {
   title: string;
   data: { test_time: number; value: number }[];
@@ -30,13 +32,16 @@ const DynamicLineChart: React.FC<DynamicLineChartProps> = ({
   data,
   color,
 }) => {
+  // console.log("Data in the chart is", data);
   const transparentColor = color.replace("1)", "0.2)");
   const chartData = {
-    labels: data.map((point) => point.test_time.toFixed(2)),
+    labels: data.map((point) => {
+      return Math.floor(point.test_time);
+    }),
     datasets: [
       {
         label: title,
-        data: data.map((point) => point.value.toFixed(1)),
+        data: data.map((point) => point.value.toFixed(3)),
         borderColor: color,
         backgroundColor: transparentColor,
         borderWidth: 1,
@@ -44,14 +49,23 @@ const DynamicLineChart: React.FC<DynamicLineChartProps> = ({
     ],
   };
 
-  const chartOptions = {
-    responsive: true,
+  const chartOptions: ChartOptions<"line"> = {
     scales: {
       x: {
         title: { display: true, text: "Time (s)" },
       },
       y: {
         title: { display: true, text: title },
+      },
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const value = context.raw;
+            return `Value: ${Number(value).toFixed(3)}`;
+          },
+        },
       },
     },
     layout: {

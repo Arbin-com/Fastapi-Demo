@@ -51,13 +51,10 @@ const Home: React.FC = () => {
   const loadFiles = async () => {
     try {
       const response = await fetchFiles();
-      console.log("The response for load files is ", response);
       if (response.success) {
         const file_list: { value: string }[] = [];
         for (const file of response.feedback) {
-          console.log("The file is", file);
           file_list.push({ value: file });
-          console.log("The file list is", file_list);
         }
         setFiles(file_list);
       } else {
@@ -114,13 +111,7 @@ const Home: React.FC = () => {
       new Date().toISOString()
     );
     try {
-      console.log(
-        `Now the channle is ${selectedChannel}, number version is ${Number(
-          selectedChannel
-        )}`
-      );
       const response = await fetchData(Number(selectedChannel));
-      console.log(`The selected channel is ${selectedChannel}`);
       if (response.success) {
         const newPoints = response.feedback
           .filter((item: any) => item.channel_index === Number(selectedChannel))
@@ -133,8 +124,9 @@ const Home: React.FC = () => {
             temp: item.temp,
           }));
 
-        console.log("In this round, new Points is ", newPoints);
+        // console.log("In this round, new Points is ", newPoints);
         setDataPoints((prev) => {
+          console.log("Before update, prev are", prev);
           const updated = [...prev, ...newPoints];
           // console.log("This is updated result", updated);
           return updated.length > 10
@@ -396,7 +388,7 @@ const Home: React.FC = () => {
         </div>
 
         <div className="w-full flex justify-between gap-4">
-          <div className="flex-1 border-2 border-dashed border-gray-300 p-4">
+          <div className="flex-1 border-2 border-dashed border-gray-300 p-4 ">
             <DynamicLineChart
               title="Voltage"
               data={dataPoints.map((point) => ({
