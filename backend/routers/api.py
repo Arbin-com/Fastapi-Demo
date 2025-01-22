@@ -3,14 +3,15 @@ import time
 from fastapi import APIRouter, HTTPException, Path
 
 from services.cti_service import CTIWrapper
-from services.cti_model import StartChannelRequest, AssignScheduleRequest, StopChannelRequest, StopChannelResponse
+from services.cti_model import StartChannelRequest, AssignScheduleRequest, StopChannelRequest, StopChannelResponse, \
+    AssignFileRequest
 
 cti_wrapper = CTIWrapper()
 
 router = APIRouter()
 
-CMD_TIMEOUT = 1
-FEEDBACK_TIMEOUT = 1
+CMD_TIMEOUT = 3
+FEEDBACK_TIMEOUT = 3
 
 
 @router.post("/login")
@@ -171,9 +172,6 @@ async def get_channel_data(index: int = Path(...)):
         return {
             "success": True,
             "message": "Get channel data successfully.",
-            # "feedback": [{"channel_index": data.channel_index, "test_time": data.test_time, "step_time": data.step_time,
-            #               "voltage": data.voltage, "current": data.current, "temp": data.auxs[1][0].value} for data in
-            #              feedback.channel_data]
             "feedback": [{"channel_index": data.channel_index, "test_time": data.test_time, "step_time": data.step_time,
                           "voltage": data.voltage, "current": data.current, "temp": data.auxs[1][0].value} for data in
                          feedback.channel_data if data.channel_index == index]
@@ -203,7 +201,7 @@ async def get_schedules():
         feedback_received = False
         start_time = time.time()
         while not feedback_received and (time.time() - start_time) < FEEDBACK_TIMEOUT:
-            feedback_received = cti_wrapper.browse_schedule_file_feedback is not None
+            feedback_received = cti_wrapper.browse_file_feedback is not None
             if not feedback_received:
                 time.sleep(0.1)
 
@@ -214,8 +212,8 @@ async def get_schedules():
                 "error": "Failed to get CTI feedback"
             }
 
-        feedback = cti_wrapper.browse_schedule_file_feedback
-        cti_wrapper.browse_schedule_file_feedback = None
+        feedback = cti_wrapper.browse_file_feedback
+        cti_wrapper.browse_file_feedback = None
 
         if feedback.result == feedback.EResult.CTI_BROWSE_DIRECTORY_FAILED:
             return {
@@ -239,7 +237,6 @@ async def get_schedules():
         }
 
 
-# TODO: Test sdx
 @router.post("/schedules/assign")
 async def assign_schedule(request: AssignScheduleRequest):
     try:
@@ -252,7 +249,6 @@ async def assign_schedule(request: AssignScheduleRequest):
         MVUD4 = request.MVUD4
         all_assign = request.all_assign
         channel_index = request.channel_index
-
 
         cmd_sent = False
         start_time = time.time()
@@ -299,6 +295,204 @@ async def assign_schedule(request: AssignScheduleRequest):
                 "success": False,
                 "message": "Failed to assign the schedule.",
                 "error": feedback
+            }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "message": "An unexpected error occurred.",
+            "error": "Unexpected error occurred, " + str(e)
+        }
+
+
+@router.get("/test_objects")
+async def get_test_objects():
+    try:
+        cmd_sent = False
+        start_time = time.time()
+        while not cmd_sent and (time.time() - start_time) < CMD_TIMEOUT:
+            cmd_sent = cti_wrapper.browse_test_object_file()
+            if not cmd_sent:
+                time.sleep(0.1)
+        if not cmd_sent:
+            raise HTTPException(status_code=500,
+                                detail=f"Failed to send get test object command within {CMD_TIMEOUT} seconds.")
+
+        feedback_received = False
+        start_time = time.time()
+        while not feedback_received and (time.time() - start_time) < FEEDBACK_TIMEOUT:
+            feedback_received = cti_wrapper.browse_file_feedback is not None
+            if not feedback_received:
+                time.sleep(0.1)
+
+        if not feedback_received:
+            return {
+                "success": False,
+                "message": "Failed to get test object files.",
+                "error": "Failed to get CTI feedback when retrieving test objects."
+            }
+
+        feedback = cti_wrapper.browse_file_feedback
+        cti_wrapper.browse_file_feedback = None
+
+        if feedback.result == feedback.EResult.CTI_BROWSE_DIRECTORY_FAILED:
+            return {
+                "success": False,
+                "message": "Failed to get schedule files.",
+                "error": "CTI internal failure."
+            }
+
+        files = [info.parent_dir_path for info in feedback.dir_file_info]
+        return {
+            "success": True,
+            "message": "Test objects fetched successfully.",
+            "files": files
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "message": "An unexpected error occurred.",
+            "error": "Unexpected error occurred, " + str(e)
+        }
+
+
+@router.post("/files/assign")
+async def assign_file(request: AssignFileRequest):
+    try:
+        file_name = request.file_name
+        all_assign = request.all_assign
+        file_type = request.file_type
+        channels = request.channels
+
+        cmd_sent = False
+        start_time = time.time()
+        while not cmd_sent and (time.time() - start_time) < CMD_TIMEOUT:
+            cmd_sent = cti_wrapper.assign_file(file_name, all_assign, file_type, channels)
+            if not cmd_sent:
+                time.sleep(0.1)
+        if not cmd_sent:
+            raise HTTPException(status_code=500,
+                                detail=f"Failed to send Assign Files command within {CMD_TIMEOUT} seconds.")
+
+        feedback_received = False
+        start_time = time.time()
+        while not feedback_received and (time.time() - start_time) < FEEDBACK_TIMEOUT:
+            feedback_received = cti_wrapper.assign_file_feedback is not None
+            if not feedback_received:
+                time.sleep(0.1)
+
+        if not feedback_received:
+            return {
+                "success": False,
+                "message": "Failed to assign files.",
+                "error": f"Failed to get CTI feedback when assign files, file type is: {file_type}"
+            }
+
+        feedback = cti_wrapper.assign_file_feedback
+        cti_wrapper.assign_file_feedback = None
+
+        if feedback.result == feedback.EAssignToken.CTI_ASSIGN_SUCCESS:
+            return {
+                "success": True,
+                "message": "Assign files successfully",
+                "feedback": feedback
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_FAILED:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "Failed to assign files."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_INDEX:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "Channel Index error."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_ERROR:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "Execution error."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_FILE_NAME_EMPTY_ERROR:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "File name is empty."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_FILE_NOT_FIND_ERROR:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "File not found."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_CHANNEL_RUNNING_ERROR:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "Channel is running."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_CHANNEL_DOWNLOAD_ERROR:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "Execution error."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_BACTH_FILE_OPENED:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "Batch File opened."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_FILE_CANNOT_ASSIGN:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "Error occurred during file assign."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_FILE_SAVE_FAILED:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "File saved error."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_FILE_UNSUPPORTED_FILE_TYPE:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "Unsupported file type."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_FILE_NOT_ASSIGN_SCHEDULE:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "Schedule is not assigned."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_FILE_SCHEDULE_NOT_AUX_REQUIREMENT:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "Schedule does not contain aux requirements"
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_FILE_SCHEDULE_IS_RUNNING:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "Schedule is running."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_SCHEDULE_MUID_NOT_SAME:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "MUID mismatch."
+            }
+        elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_FILE_CLEAR:
+            return {
+                "success": False,
+                "message": "Failed to assign files",
+                "error": "file cleared."
             }
 
     except Exception as e:

@@ -7,18 +7,17 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 dll_path = os.path.join(script_dir, "ArbinCTI.dll")
 if not os.path.exists(dll_path):
     raise FileNotFoundError(f"Could not find DLL at {dll_path}")
-clr.AddReference(dll_path)
+clr.AddReference(dll_path)  # type: ignore
 from typing import Optional
 from ArbinCTI.Core import ArbinClient  # type: ignore
 from ArbinCTI.Core.Control import ArbinControl  # type: ignore
 from ArbinCTI.Core import ArbinCommandGetChannelDataFeed  # type: ignore
 
 from ctitoolbox import LoginFeedback, AssignScheduleFeedback, BrowseDirectoryFeedback, GetChannelDataFeedback, \
-    StartChannelFeedback, StopChannelFeedback, CSTypeConverter
+    StartChannelFeedback, StopChannelFeedback, CSTypeConverter, AssignFileFeedback
 
-from System import Double # type: ignore
-from System import Single # type: ignore
-
+from System import Double  # type: ignore
+from System import Single  # type: ignore
 
 
 class CTIWrapper(ArbinControl):
@@ -31,10 +30,11 @@ class CTIWrapper(ArbinControl):
         # for cmd feedback
         self.login_feedback: Optional[LoginFeedback] = None
         self.assign_schedule_feedback: Optional[AssignScheduleFeedback] = None
-        self.browse_schedule_file_feedback: Optional[BrowseDirectoryFeedback] = None
+        self.browse_file_feedback: Optional[BrowseDirectoryFeedback] = None
         self.get_channel_info_feedback: Optional[GetChannelDataFeedback] = None
         self.start_channel_feedback: Optional[StartChannelFeedback] = None
         self.stop_channel_feedback: Optional[StopChannelFeedback] = None
+        self.assign_file_feedback: Optional[AssignFileFeedback] = None
 
     # region authentication
 
@@ -72,10 +72,19 @@ class CTIWrapper(ArbinControl):
     # region file operation
     def browse_schedule_file(self):
         return self.PostBrowseDirectory(self.client, r"SCHEDULE")
+        # return self.PostBrowseDirectory(self.client, r"C:\ArbinSoftware\Mits10\WinDaq\Work")
+
+    def browse_test_object_file(self):
+        return self.PostBrowseDirectory(self.client, r"TEST OBJECT")
+        # return self.PostBrowseDirectory(self.client, r"C:\ArbinSoftware\Mits10\WinDaq\Profiles_TestObject")
+        # return self.PostBrowseDirectory(self.client, r"C:\ArbinSoftware\Mits10\WinDaq\Work")
 
     def OnBrowseDirectoryBack(self, feedback):
         try:
-            self.browse_schedule_file_feedback = BrowseDirectoryFeedback(feedback)
+            self.browse_file_feedback = BrowseDirectoryFeedback(feedback)
+            print(f"feedback for browse is", self.browse_file_feedback)
+            print(f"feedback for browse is", self.browse_file_feedback.dir_file_info)
+            print(f"feedback result if ", self.browse_file_feedback.result)
         except Exception as err:
             print("Convert browse directory feedback error: ", err)
 
@@ -86,9 +95,6 @@ class CTIWrapper(ArbinControl):
                         barcode: str, capacity: float,
                         MVUD1: float, MVUD2: float, MVUD3: float, MVUD4: float,
                         all_assign=False, channel_index=-1):
-        # return self.PostAssignSchedule(self.client, "test2.sdx", barcode, Single(capacity), Single(MVUD1), Single(MVUD2), Single(MVUD3), Single(MVUD4),
-        #                                all_assign,
-        #                                channel_index)
         return self.PostAssignSchedule(self.client, schedule_name, barcode, capacity, MVUD1, MVUD2, MVUD3, MVUD4,
                                        all_assign,
                                        channel_index)
@@ -98,6 +104,22 @@ class CTIWrapper(ArbinControl):
             self.assign_schedule_feedback = AssignScheduleFeedback(feedback)
         except Exception as err:
             print("Convert assign schedule feedback error: ", err)
+
+    def assign_file(self, file_name: str, all_assign: bool, file_type: int, channels: list[int]):
+        converted_channels = CSTypeConverter.to_list(channels, CSTypeConverter.EDataType.USHORT)
+        print(f"The file type is ", AssignFileFeedback.EFileKind(file_type))
+        print(f"The converted file type is ", AssignFileFeedback.EFileKind(file_type).to_cs())
+        return self.PostAssignFile(self.client, file_name, all_assign, AssignFileFeedback.EFileKind(file_type).to_cs(),
+                                   converted_channels)
+
+    def OnAssignFileFeedBack(self, feedback):
+        try:
+            print(feedback)
+            print(feedback.Result)
+            print(feedback.Reason)
+            self.assign_file_feedback = AssignFileFeedback(feedback)
+        except Exception as err:
+            print("Convert assign file feedback error: ", err)
 
     # endregion
 
@@ -114,7 +136,8 @@ class CTIWrapper(ArbinControl):
 
         # return self.PostGetChannelsData(self.client, CSTypeConverter.to_uint(data_type), CSTypeConverter.to_short(-1),
         #                                 ArbinCommandGetChannelDataFeed.GET_CHANNEL_TYPE.ALLCHANNEL)
-        return self.PostGetChannelsData(self.client, CSTypeConverter.to_uint(data_type), CSTypeConverter.to_short(-1), GetChannelDataFeedback.EChannelType.ALLCHANNEL.to_cs())
+        return self.PostGetChannelsData(self.client, CSTypeConverter.to_uint(data_type), CSTypeConverter.to_short(-1),
+                                        GetChannelDataFeedback.EGetChannelType.ALLCHANNEL.to_cs())
 
     def OnGetChannelsDataFeedBack(self, feedback):
         try:
