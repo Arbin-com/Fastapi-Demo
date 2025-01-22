@@ -20,12 +20,12 @@ const Dropdown: React.FC<DropdownProps> = ({
       onChange={(e) => onChange(e.target.value)}
       className="w-full p-2 border rounded"
     >
-      <option value="" disabled>
+      <option value="" key="" disabled>
         Select an option
       </option>
-      {options.map((option) => (
+      {options.map((option, index) => (
         <option
-          key={option.value}
+          key={index}
           value={option.value}
           disabled={
             option.status !== undefined && ![0, 15].includes(option.status)

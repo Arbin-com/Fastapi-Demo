@@ -15,7 +15,6 @@ const LoginPage: React.FC = () => {
     try {
       setIsLoading(true);
       setBaseUrl(ipaddress);
-      console.log("ipaddress is ", ipaddress);
       const response = await login(username, password);
       console.log("The login response is", response);
       if (response.success) {
@@ -23,7 +22,7 @@ const LoginPage: React.FC = () => {
         navigate("/home");
       } else {
         console.error("Login failed", response.error);
-        alert(`Error: ${response.error}`);
+        alert(`Error: ${response.message}`);
       }
     } catch (err) {
       console.error("An unexpected error occurred", err);

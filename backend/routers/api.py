@@ -226,7 +226,7 @@ async def get_schedules():
         return {
             "success": True,
             "message": "Schedules fetched successfully.",
-            "files": files
+            "feedback": files
         }
 
     except Exception as e:
@@ -346,7 +346,7 @@ async def get_test_objects():
         return {
             "success": True,
             "message": "Test objects fetched successfully.",
-            "files": files
+            "feedback": files
         }
 
     except Exception as e:
@@ -357,13 +357,15 @@ async def get_test_objects():
         }
 
 
-@router.post("/files/assign")
-async def assign_file(request: AssignFileRequest):
+@router.post("/test_objects/assign")
+async def assign_test_objects(request: AssignFileRequest):
     try:
         file_name = request.file_name
         all_assign = request.all_assign
         file_type = request.file_type
         channels = request.channels
+        print(f"In the api, file_type is ", file_type)
+        print(f"In the api, channels are ", channels)
 
         cmd_sent = False
         start_time = time.time()
@@ -377,6 +379,7 @@ async def assign_file(request: AssignFileRequest):
 
         feedback_received = False
         start_time = time.time()
+        print(f"currently, feedback should be None, feedback is ", cti_wrapper.assign_file_feedback)
         while not feedback_received and (time.time() - start_time) < FEEDBACK_TIMEOUT:
             feedback_received = cti_wrapper.assign_file_feedback is not None
             if not feedback_received:

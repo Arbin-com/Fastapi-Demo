@@ -5,13 +5,16 @@ import InputField from "../components/InputField";
 import {
   fetchFiles,
   fetchChannels,
+  fetchTestObjects,
   logout,
   startChannel,
   assignSchedule,
+  assignTO,
   stopChannel,
   fetchData,
 } from "../api";
 import {
+  AssignFileRequest,
   AssignScheduleRequest,
   StartChannelRequest,
   StopChannelRequest,
@@ -26,6 +29,8 @@ const Home: React.FC = () => {
     []
   );
   const [selectedChannel, setSelectedChannel] = useState<string>("");
+  const [testObjects, setTestObjects] = useState<{ value: string }[]>([]);
+  const [selectedTestObject, setSelectedTestObject] = useState<string>("");
   const [testName, setTestName] = useState<string>("test_demo");
   const [isLoading, setIsLoading] = useState<boolean>();
   const [canStart, setCanStart] = useState<boolean>(true);
@@ -49,7 +54,7 @@ const Home: React.FC = () => {
       console.log("The response for load files is ", response);
       if (response.success) {
         const file_list: { value: string }[] = [];
-        for (const file of response.files) {
+        for (const file of response.feedback) {
           console.log("The file is", file);
           file_list.push({ value: file });
           console.log("The file list is", file_list);
@@ -68,18 +73,33 @@ const Home: React.FC = () => {
   const loadChannels = async () => {
     try {
       const response = await fetchChannels();
-      console.log("The response for fetching files is: ", response);
       if (response.success) {
         const channel_list = response.feedback.map(
           ({ value, status }: { value: string; status: number }) => {
             return { value, status };
           }
         );
-        console.log("The schedule result is", channel_list);
         setChannels(channel_list);
       } else {
         console.error("Load channel failed", response.error);
         alert(`Load channel error: ${response.message}`);
+      }
+    } catch (err) {
+      console.error("An unexpected error occurred", err);
+    }
+  };
+
+  const loadTestObjects = async () => {
+    try {
+      const response = await fetchTestObjects();
+      if (response.success) {
+        const to_list = response.feedback.map((item: string) => {
+          return { value: item };
+        });
+        setTestObjects(to_list);
+      } else {
+        console.error("Load test objects error", response.error);
+        alert(`Load Test Object Error: ${response.message}`);
       }
     } catch (err) {
       console.error("An unexpected error occurred", err);
@@ -148,7 +168,7 @@ const Home: React.FC = () => {
     const initializeApp = async () => {
       try {
         setIsLoading(true);
-        await Promise.all([loadFiles(), loadChannels()]);
+        await Promise.all([loadFiles(), loadChannels(), loadTestObjects()]);
       } catch (err) {
         console.log("An error occurred during initialization", err);
         alert("Initialization failed, please try again.");
@@ -160,7 +180,7 @@ const Home: React.FC = () => {
     initializeApp();
   }, []);
 
-  const handleAssign = async () => {
+  const handleAssignSchedule = async () => {
     if (!selectedFile) {
       alert("Please select a schedule file first!");
       return;
@@ -190,6 +210,40 @@ const Home: React.FC = () => {
         "An unexpected error occurred during assign schedules: ",
         err
       );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAssignTO = async () => {
+    if (!selectedTestObject) {
+      alert("Please select a Test Object first.");
+      return;
+    }
+    if (!selectedChannel) {
+      alert("Please select a channel to assign test object.");
+      return;
+    }
+
+    const requestData: AssignFileRequest = {
+      file_name: selectedTestObject,
+      file_type: 5,
+      all_assign: false,
+      channels: [Number(selectedChannel)],
+    };
+
+    try {
+      setIsLoading(true);
+      const response = await assignTO(requestData);
+      if (response.success) {
+        setIsLoading(false);
+        console.log("Assign TO successfully.");
+      } else {
+        console.error("Failed to assign test object.", response.error);
+        alert(`Failed to assign test object: ${response.message}`);
+      }
+    } catch (error) {
+      console.error("An error occurred during assign file.", error);
     } finally {
       setIsLoading(false);
     }
@@ -295,9 +349,26 @@ const Home: React.FC = () => {
               disabled={isLoading}
             />
             <Button
-              onClick={handleAssign}
+              onClick={handleAssignSchedule}
               label={"assign"}
-              disabled={isLoading || !selectedFile}
+              disabled={isLoading || !selectedFile || !selectedChannel}
+            />
+          </div>
+        </div>
+
+        <div className="mb-4 w-full max-w-lg">
+          <label>Choose Test Object:</label>
+          <div className="flex items-center gap-4">
+            <Dropdown
+              options={testObjects}
+              selected={selectedTestObject}
+              onChange={setSelectedTestObject}
+              disabled={isLoading}
+            />
+            <Button
+              onClick={handleAssignTO}
+              label={"assign"}
+              disabled={isLoading || !selectedTestObject || !selectedChannel}
             />
           </div>
         </div>

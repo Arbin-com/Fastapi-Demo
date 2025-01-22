@@ -1,5 +1,6 @@
 import axios from "axios";
 import {
+  AssignFileRequest,
   AssignScheduleRequest,
   StartChannelRequest,
   StopChannelRequest,
@@ -55,6 +56,26 @@ export const fetchChannels = async () => {
   } catch (error) {
     console.log("Failed to fetch channels: ", error);
     throw error;
+  }
+};
+
+export const fetchTestObjects = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/test_objects`);
+    return response.data;
+  } catch (error) {
+    console.log("Failed to fetch test objects: ", error);
+    throw error;
+  }
+};
+
+export const assignTO = async (data: AssignFileRequest) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/test_objects/assign`, data);
+    return response.data;
+  } catch (err) {
+    console.log("Failed to assign file.", err);
+    throw err;
   }
 };
 

@@ -107,8 +107,10 @@ class CTIWrapper(ArbinControl):
 
     def assign_file(self, file_name: str, all_assign: bool, file_type: int, channels: list[int]):
         converted_channels = CSTypeConverter.to_list(channels, CSTypeConverter.EDataType.USHORT)
+        print(f"The channels contains:", channels)
+        print(f"The file name is", file_name)
         print(f"The file type is ", AssignFileFeedback.EFileKind(file_type))
-        print(f"The converted file type is ", AssignFileFeedback.EFileKind(file_type).to_cs())
+        print(f"The converted file type is", AssignFileFeedback.EFileKind(file_type).to_cs())
         return self.PostAssignFile(self.client, file_name, all_assign, AssignFileFeedback.EFileKind(file_type).to_cs(),
                                    converted_channels)
 

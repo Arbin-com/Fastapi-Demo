@@ -19,3 +19,10 @@ export interface AssignScheduleRequest {
   all_assign?: boolean;
   channel_index?: number;
 }
+
+export interface AssignFileRequest {
+  file_name: string;
+  all_assign: boolean;
+  file_type: number;
+  channels: number[];
+}
