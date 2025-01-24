@@ -34,14 +34,18 @@ const DynamicLineChart: React.FC<DynamicLineChartProps> = ({
 }) => {
   // console.log("Data in the chart is", data);
   const transparentColor = color.replace("1)", "0.2)");
+  const filteredData = data.filter(
+    (point) => point.value !== null && point.value !== undefined
+  );
+
   const chartData = {
-    labels: data.map((point) => {
+    labels: filteredData.map((point) => {
       return Math.floor(point.test_time);
     }),
     datasets: [
       {
         label: title,
-        data: data.map((point) => point.value.toFixed(3)),
+        data: filteredData.map((point) => point.value.toFixed(3)),
         borderColor: color,
         backgroundColor: transparentColor,
         borderWidth: 1,

@@ -11,9 +11,23 @@ const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>();
   const navigate = useNavigate();
 
+  const validateIpAddress = (value: string) => {
+    setIpaddress(value);
+    const ipRegex =
+      /^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/;
+    console.log(ipRegex.test(value));
+    return ipRegex.test(value);
+  };
+
   const handleLogin = async () => {
     try {
       setIsLoading(true);
+      if (!validateIpAddress(ipaddress)) {
+        alert("Ip Address is not valid.");
+      }
+      if (username === "") {
+        alert("Please input your username.");
+      }
       setBaseUrl(ipaddress);
       const response = await login(username, password);
       console.log("The login response is", response);
@@ -27,6 +41,8 @@ const LoginPage: React.FC = () => {
     } catch (err) {
       console.error("An unexpected error occurred", err);
       alert("Failed to connect to server, please try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
