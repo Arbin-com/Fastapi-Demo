@@ -173,7 +173,9 @@ async def get_channel_data(index: int = Path(...)):
             "success": True,
             "message": "Get channel data successfully.",
             "feedback": [{"channel_index": data.channel_index, "test_time": data.test_time, "step_time": data.step_time,
-                          "voltage": data.voltage, "current": data.current, "temp": data.auxs[1][0].value if data.auxs and len(data.auxs) > 0 and len(data.auxs[0]) > 0 else None} for data in
+                          "voltage": data.voltage, "current": data.current,
+                          "temp": data.auxs[1][0].value if data.auxs and len(data.auxs) > 1 and len(
+                              data.auxs[1]) > 0 else None} for data in
                          feedback.channel_data if data.channel_index == index]
         }
 
