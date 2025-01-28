@@ -7,11 +7,17 @@ import {
 } from "./types";
 
 //ip address should correspond to the server where the FastAPI is currently running.
-let BASE_URL = "http://127.0.0.1:8000";
+const DEFAULT_PORT = 8000;
+let BASE_URL =
+  sessionStorage.getItem("baseUrl") || `http://127.0.0.1:${DEFAULT_PORT}`;
 
 export const setBaseUrl = (ipaddress: string) => {
-  BASE_URL = `http://${ipaddress}:8000`;
+  BASE_URL = `http://${ipaddress}:${DEFAULT_PORT}`;
+  sessionStorage.setItem("baseUrl", BASE_URL);
 };
+
+//function to get base_url
+export const getBaseUrl = () => BASE_URL;
 
 // APIs
 export const login = async (
@@ -19,6 +25,7 @@ export const login = async (
   password: string,
   ipaddress?: string
 ) => {
+  console.log("The url is", sessionStorage.getItem("baseUrl"));
   const response = await axios.post(`${BASE_URL}/login`, {
     username,
     password,
@@ -30,6 +37,7 @@ export const login = async (
 export const logout = async () => {
   try {
     const response = await axios.post(`${BASE_URL}/logout`);
+    console.log("The url is", BASE_URL);
     return response.data;
   } catch (error) {
     console.error("Logout API error", error);
