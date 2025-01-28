@@ -137,7 +137,6 @@ async def get_channels_status():
         }
 
 
-# TODO:
 @router.get("/channels/data/{index}")
 async def get_channel_data(index: int = Path(...)):
     try:
@@ -164,10 +163,6 @@ async def get_channel_data(index: int = Path(...)):
 
         feedback = cti_wrapper.get_channel_info_feedback
         cti_wrapper.get_channel_info_feedback = None
-        print("The fetch data feedback is: ",
-              [{"channel_index": data.channel_index, "test_time": data.test_time, "step_time": data.step_time,
-                "voltage": data.voltage, "current": data.current, "temp": data.auxs} for data in
-               feedback.channel_data if data.channel_index == index])
 
         return {
             "success": True,
@@ -366,8 +361,6 @@ async def assign_test_objects(request: AssignFileRequest):
         all_assign = request.all_assign
         file_type = request.file_type
         channels = request.channels
-        print(f"In the api, file_type is ", file_type)
-        print(f"In the api, channels are ", channels)
 
         cmd_sent = False
         start_time = time.time()
@@ -381,7 +374,6 @@ async def assign_test_objects(request: AssignFileRequest):
 
         feedback_received = False
         start_time = time.time()
-        print(f"currently, feedback should be None, feedback is ", cti_wrapper.assign_file_feedback)
         while not feedback_received and (time.time() - start_time) < FEEDBACK_TIMEOUT:
             feedback_received = cti_wrapper.assign_file_feedback is not None
             if not feedback_received:
@@ -767,7 +759,6 @@ async def stop_channel(request: StopChannelRequest):
 
         feedback = cti_wrapper.stop_channel_feedback
         cti_wrapper.stop_channel_feedback = None
-        # print("IN my stop channel api, the result received is ", feedback)
 
         if feedback.result == feedback.EStopToken.SUCCESS:
             return {

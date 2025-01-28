@@ -52,7 +52,6 @@ class CTIWrapper(ArbinControl):
 
     def OnUserLoginFeedBack(self, feedback):
         try:
-            # self.login_feedback = int(feedback.Result)
             self.login_feedback = LoginFeedback(feedback)
         except Exception as e:
             print("Error: login error", e)
@@ -72,19 +71,13 @@ class CTIWrapper(ArbinControl):
     # region file operation
     def browse_schedule_file(self):
         return self.PostBrowseDirectory(self.client, r"SCHEDULE")
-        # return self.PostBrowseDirectory(self.client, r"C:\ArbinSoftware\Mits10\WinDaq\Work")
 
     def browse_test_object_file(self):
         return self.PostBrowseDirectory(self.client, r"TEST OBJECT")
-        # return self.PostBrowseDirectory(self.client, r"C:\ArbinSoftware\Mits10\WinDaq\Profiles_TestObject")
-        # return self.PostBrowseDirectory(self.client, r"C:\ArbinSoftware\Mits10\WinDaq\Work")
 
     def OnBrowseDirectoryBack(self, feedback):
         try:
             self.browse_file_feedback = BrowseDirectoryFeedback(feedback)
-            print(f"feedback for browse is", self.browse_file_feedback)
-            print(f"feedback for browse is", self.browse_file_feedback.dir_file_info)
-            print(f"feedback result if ", self.browse_file_feedback.result)
         except Exception as err:
             print("Convert browse directory feedback error: ", err)
 
@@ -107,18 +100,11 @@ class CTIWrapper(ArbinControl):
 
     def assign_file(self, file_name: str, all_assign: bool, file_type: int, channels: list[int]):
         converted_channels = CSTypeConverter.to_list(channels, CSTypeConverter.EDataType.USHORT)
-        print(f"The channels contains:", channels)
-        print(f"The file name is", file_name)
-        print(f"The file type is ", AssignFileFeedback.EFileKind(file_type))
-        print(f"The converted file type is", AssignFileFeedback.EFileKind(file_type).to_cs())
         return self.PostAssignFile(self.client, file_name, all_assign, AssignFileFeedback.EFileKind(file_type).to_cs(),
                                    converted_channels)
 
     def OnAssignFileFeedBack(self, feedback):
         try:
-            print(feedback)
-            print(feedback.Result)
-            print(feedback.Reason)
             self.assign_file_feedback = AssignFileFeedback(feedback)
         except Exception as err:
             print("Convert assign file feedback error: ", err)
@@ -134,22 +120,13 @@ class CTIWrapper(ArbinControl):
         :param channel_index:
         :return:
         """
-        converted_data_type = CSTypeConverter.to_uint(data_type)
 
-        # return self.PostGetChannelsData(self.client, CSTypeConverter.to_uint(data_type), CSTypeConverter.to_short(-1),
-        #                                 ArbinCommandGetChannelDataFeed.GET_CHANNEL_TYPE.ALLCHANNEL)
         return self.PostGetChannelsData(self.client, CSTypeConverter.to_uint(data_type), CSTypeConverter.to_short(-1),
                                         GetChannelDataFeedback.EGetChannelType.ALLCHANNEL.to_cs())
 
     def OnGetChannelsDataFeedBack(self, feedback):
         try:
             self.get_channel_info_feedback = GetChannelDataFeedback(feedback)
-            # print(self.get_channel_info_feedback.channel_data[0].auxs)
-            # for item in feedback.m_Channels[0].Auxs:
-            #     print("aux", item[GetChannelDataFeedback.ChannelInfo.AuxType.T.value])
-            #
-            # for item in feedback.m_Channels[0].AuxeDatas:
-            #     print("aux data",item[GetChannelDataFeedback.ChannelInfo.AuxType.T])
 
         except Exception as e:
             print("Convert channel data feedback error: ", e)
