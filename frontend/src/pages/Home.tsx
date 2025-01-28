@@ -104,12 +104,6 @@ const Home: React.FC = () => {
   };
 
   const fetchDataPoints = useCallback(async () => {
-    console.log(
-      "Fetching data for channel",
-      selectedChannel,
-      " at ",
-      new Date().toISOString()
-    );
     try {
       const response = await fetchData(Number(selectedChannel));
       if (response.success) {
@@ -124,11 +118,8 @@ const Home: React.FC = () => {
             temp: item.temp,
           }));
 
-        // console.log("In this round, new Points is ", newPoints);
         setDataPoints((prev) => {
-          console.log("Before update, prev are", prev);
           const updated = [...prev, ...newPoints];
-          // console.log("This is updated result", updated);
           return updated.length > 10
             ? updated.slice(updated.length - 10)
             : updated;

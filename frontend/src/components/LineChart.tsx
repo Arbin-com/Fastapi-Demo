@@ -32,7 +32,6 @@ const DynamicLineChart: React.FC<DynamicLineChartProps> = ({
   data,
   color,
 }) => {
-  // console.log("Data in the chart is", data);
   const transparentColor = color.replace("1)", "0.2)");
   const filteredData = data.filter(
     (point) => point.value !== null && point.value !== undefined

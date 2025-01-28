@@ -25,7 +25,6 @@ export const login = async (
   password: string,
   ipaddress?: string
 ) => {
-  console.log("The url is", sessionStorage.getItem("baseUrl"));
   const response = await axios.post(`${BASE_URL}/login`, {
     username,
     password,
@@ -37,7 +36,6 @@ export const login = async (
 export const logout = async () => {
   try {
     const response = await axios.post(`${BASE_URL}/logout`);
-    console.log("The url is", BASE_URL);
     return response.data;
   } catch (error) {
     console.error("Logout API error", error);
@@ -48,7 +46,6 @@ export const logout = async () => {
 export const fetchFiles = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/schedules`);
-    console.log("Fetch files as below:");
     console.log(response.data);
     return response.data;
   } catch (error) {
@@ -122,7 +119,6 @@ export const fetchData = async (channel_index: number) => {
     const response = await axios.get(
       `${BASE_URL}/channels/data/${channel_index}`
     );
-    console.log(`Send request to ${BASE_URL}/channels/data/${channel_index}`);
     return response.data;
   } catch (err) {
     console.log("Failed to fetch data", err);
