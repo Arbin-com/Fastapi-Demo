@@ -83,12 +83,23 @@ Ensure you meet the following prerequisties before installation:
 
 1. Activate virtual environment
 
+   _To avoid conflicts with your global environment, it's recommended to use a virtual environment._
+
    ```sh
    cd backend
 
    python -m venv venv
    venv\Scripts\activate # Windows
+   source venv/bin/activate # MacOS
    ```
+
+   Check which Python interpreter is being used with:
+
+   ```sh
+   which python
+   ```
+
+   If the virtual environment is activated correctly, the output should display the path to the virtual environment's Python interpreter instead of the system-wide Python.
 
 2. Install the dependency
    ```sh
