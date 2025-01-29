@@ -26,7 +26,7 @@ def assign_schedule(base_url, schedule_name, channel_index):
         if response_data["success"]:
             print("Assign schedule successfully.")
         else:
-            print(f"Failed to assign schedule. Error: {response_data["error"]}")
+            print(f"Failed to assign schedule. Error: {response_data['error']}")
 
         print(response_data)
     except Exception as e:

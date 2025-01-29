@@ -25,7 +25,7 @@ def login(request_payload):
         if response_data["success"]:
             print("Login successfully.")
         else:
-            print(f"Login failed. Error: {response_data["error"]}")
+            print(f"Login failed. Error: {response_data['error']}")
 
         print(response_data)
     except Exception as e:

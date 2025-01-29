@@ -20,7 +20,7 @@ def get_channel_status(base_url):
         if response_data["success"]:
             print("Get channel status successfully")
         else:
-            print(f"Failed to get channel status, {response_data["error"]}", )
+            print(f"Failed to get channel status, {response_data['error']}", )
 
         print(response_data)
     except Exception as e:
