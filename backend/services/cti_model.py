@@ -2,6 +2,13 @@ from pydantic import BaseModel
 from typing import Optional, Any
 
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+    ipaddress: str
+    port: int = 9031  # Port assigned for CTI communication
+
+
 class StartChannelRequest(BaseModel):
     test_name: str
     channels: list[int]
@@ -10,13 +17,6 @@ class StartChannelRequest(BaseModel):
 class StopChannelRequest(BaseModel):
     channel_index: int
     is_stop_all: bool = False
-
-
-class StopChannelResponse(BaseModel):
-    success: bool
-    message: str
-    error: Optional[str] = None
-    feedback: Optional[Any] = None
 
 
 class AssignScheduleRequest(BaseModel):

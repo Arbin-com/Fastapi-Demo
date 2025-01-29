@@ -1,3 +1,10 @@
+export interface LoginRequest {
+  username: string;
+  password: string;
+  ipaddress: string;
+  port?: number;
+}
+
 export interface StartChannelRequest {
   test_name: string;
   channels: number[];

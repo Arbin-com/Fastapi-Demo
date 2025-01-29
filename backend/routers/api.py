@@ -3,7 +3,7 @@ import time
 from fastapi import APIRouter, HTTPException, Path
 
 from services.cti_service import CTIWrapper
-from services.cti_model import StartChannelRequest, AssignScheduleRequest, StopChannelRequest, StopChannelResponse, \
+from services.cti_model import LoginRequest, StartChannelRequest, AssignScheduleRequest, StopChannelRequest, \
     AssignFileRequest
 
 cti_wrapper = CTIWrapper()
@@ -15,8 +15,13 @@ FEEDBACK_TIMEOUT = 3
 
 
 @router.post("/login")
-async def login(username="admin", password="000000", ipaddress="127.0.0.1", port=9031):
+async def login(request: LoginRequest):
     try:
+        username = request.username
+        password = request.password
+        ipaddress = request.ipaddress
+        port = request.port
+        print(f"In the api, the username is {username}, the password is {password}, the ipaddress is {ipaddress}.")
         login_cmd_sent = False
         start_time = time.time()
         while not login_cmd_sent and (time.time() - start_time) < CMD_TIMEOUT:
@@ -62,7 +67,7 @@ async def login(username="admin", password="000000", ipaddress="127.0.0.1", port
         return {
             "success": False,
             "message": "An unexpected error occurred.",
-            "error": "An unexpected error occurred during login. " + str(e)
+            "error": "An unexpected error occurred during login: " + str(e)
         }
 
 
