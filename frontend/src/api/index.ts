@@ -2,6 +2,7 @@ import axios from "axios";
 import {
   AssignFileRequest,
   AssignScheduleRequest,
+  LoginRequest,
   StartChannelRequest,
   StopChannelRequest,
 } from "./types";
@@ -20,17 +21,14 @@ export const setBaseUrl = (ipaddress: string) => {
 export const getBaseUrl = () => BASE_URL;
 
 // APIs
-export const login = async (
-  username: string,
-  password: string,
-  ipaddress?: string
-) => {
-  const response = await axios.post(`${BASE_URL}/login`, {
-    username,
-    password,
-    ipaddress,
-  });
-  return response.data;
+export const login = async (data: LoginRequest) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/login`, data);
+    return response.data;
+  } catch (error) {
+    console.log("login API error", error);
+    throw error;
+  }
 };
 
 export const logout = async () => {

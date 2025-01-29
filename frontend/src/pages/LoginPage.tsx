@@ -3,11 +3,12 @@ import { useNavigate } from "react-router";
 import { setBaseUrl, login } from "../api";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
+import { LoginRequest } from "../api/types";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [ipaddress, setIpaddress] = useState("127.0.0.1");
+  const [ipaddress, setIpaddress] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>();
   const navigate = useNavigate();
 
@@ -29,7 +30,12 @@ const LoginPage: React.FC = () => {
         alert("Please input your username.");
       }
       setBaseUrl(ipaddress);
-      const response = await login(username, password);
+      const requestData: LoginRequest = {
+        username: username,
+        password: password,
+        ipaddress: ipaddress,
+      };
+      const response = await login(requestData);
       console.log("The login response is", response);
       if (response.success) {
         setIsLoading(false);
