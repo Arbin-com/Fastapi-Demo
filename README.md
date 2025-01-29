@@ -61,27 +61,27 @@ Ensure you meet the following prerequisties before installation:
 
 #### Frontend
 
-1. Install LTS Node.js at [https://nodejs.org/en]
+1. **Install LTS Node.js at [https://nodejs.org/en]**
 
    _Make sure to re-start your terminal before continute._
 
-2. Clone the repo
+2. **Clone the repo**
    ```sh
    git clone https://github.com/Arbin-com/Fastapi-Demo.git
    ```
-3. Install NPM packages
+3. **Install NPM packages**
    ```sh
    cd frontend
    npm install
    ```
-4. launch the frontend
+4. **launch the frontend**
    ```sh
    npm run dev
    ```
 
 #### Backend
 
-1. Activate virtual environment
+1. **Activate virtual environment**
 
    _To avoid conflicts with your global environment, it's recommended to use a virtual environment._
 
@@ -101,11 +101,11 @@ Ensure you meet the following prerequisties before installation:
 
    If the virtual environment is activated correctly, the output should display the path to the virtual environment's Python interpreter instead of the system-wide Python.
 
-2. Install the dependency
+2. **Install the dependency**
    ```sh
    pip install -r requirements.txt
    ```
-3. Launch the backend server
+3. **Launch the backend server**
 
    ```sh
    uvicorn main:app # localhost Mode
@@ -121,7 +121,7 @@ Ensure you meet the following prerequisties before installation:
 
    _(Replace `192.168.1.100` with your actual local IP)_
 
-4. Access FastAPI Swagger UI
+4. **Access FastAPI Swagger UI**
 
    _Replace `http://127.0.0.1:8000` with the actual server address where FastAPI is running._
 
