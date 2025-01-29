@@ -48,7 +48,7 @@ Ensure you meet the following prerequisties before installation:
    python --version
    ```
 
-   If Python is not installedk, you can download it from the [official Python website](https://www.python.org/)
+   If Python is not installed, you can download it from the [official Python website](https://www.python.org/)
 
 5. **Network Setup**:
 
@@ -106,8 +106,35 @@ Ensure you meet the following prerequisties before installation:
    pip install -r requirements.txt
    ```
 3. Launch the backend server
+
+   ```sh
+   uvicorn main:app # localhost Mode
+
+   uvicorn main:app --host 0.0.0.0 --port 8000 # for local & public network access
    ```
-   uvicorn main:app --host 0.0.0.0 --port 8000
+
+   If you want to allow only local network devices, insteand of `0.0.0.0`, use your specific local IP:
+
+   ```sh
+   uvicorn main:app --host 192.168.1.100 --port 8000
+   ```
+
+   _(Replace `192.168.1.100` with your actual local IP)_
+
+4. Access FastAPI Swagger UI
+
+   _Replace `http://127.0.0.1:8000` with the actual server address where FastAPI is running._
+
+   swagger UI
+
+   ```arduino
+   http://127.0.0.1:8000/docs
+   ```
+
+   ReDoc UI (alternative)
+
+   ```arduino
+   http://127.0.0.1:8000/redoc
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
