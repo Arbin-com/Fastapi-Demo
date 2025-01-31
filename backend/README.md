@@ -40,9 +40,9 @@ These endpoints manage test objects.
 
 **3.1 Authentication**
 
-- `POST /login` - Login
+- **`POST /login` - Login**
 
-  Schemas
+  **Schemas**
 
   | Field       | Type   | Required | Description                                                                                     | Example Value |
   | ----------- | ------ | -------- | ----------------------------------------------------------------------------------------------- | ------------- |
@@ -103,9 +103,9 @@ These endpoints manage test objects.
 
 **3.4 Test Object Management**
 
-- `POST /test_objects/assign` - Assign Schedule
+- `POST /test_objects/assign` - Assign Test Objects
 
-  _This endpoint assigns schedule file to one or all channels._
+  _This endpoint assigns test object file to one or all channels._
 
   | Field        | Type      | Required | Description                    | Example Value    |
   | ------------ | --------- | -------- | ------------------------------ | ---------------- |
