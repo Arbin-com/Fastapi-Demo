@@ -1,5 +1,7 @@
 # API Documentation
 
+<a id="readme-top"></a>
+
 <details>
   <summary>Table of Contents</summary>
   <ol>
@@ -62,11 +64,11 @@ These endpoints manage test objects.
 
 ### 3.1 Authentication
 
-- #### `POST /login` - Login
+- #### `POST /login` - Login <span style="float: right;">(<a href="#readme-top">back to top</a>)</span>
 
   _This endpoint handles user login._
 
-  Schemas
+  **Schemas**
 
   | Field       | Type   | Required | Description                                                                                     | Example Value |
   | ----------- | ------ | -------- | ----------------------------------------------------------------------------------------------- | ------------- |
@@ -75,7 +77,7 @@ These endpoints manage test objects.
   | `ipaddress` | string | ✅       | ip address where the CTI service is running                                                     | "127.0.0.1"   |
   | `port`      | int    | ⭕       | IP Address used for CTI communication, <br> Do not modify unless you have specific requirements | 9031          |
 
-  Sample Request
+  **Sample Request**
 
   ```
   POST /login
@@ -89,7 +91,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response (successful)
+  **Sample Response (successful)**
 
   ```
   {
@@ -115,7 +117,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response (error)
+  **Sample Response (error)**
 
   ```
   {
@@ -127,17 +129,17 @@ These endpoints manage test objects.
 
 <br>
 
-- #### `POST /logout` - Logout
+- #### `POST /logout` - Logout <span style="float: right;">(<a href="#readme-top">back to top</a>)</span>
 
   _This endpoint handles user logout._
 
-  Schemas
+  **Schemas**
 
   | Field | Type | Required | Description                               | Example Value |
   | ----- | ---- | -------- | ----------------------------------------- | ------------- |
   | -     | -    | -        | No input required to execute this command | -             |
 
-  Sample Request
+  **Sample Request**
 
   ```
   POST /login
@@ -145,7 +147,7 @@ These endpoints manage test objects.
   {}
   ```
 
-  Sample Response(successful)
+  **Sample Response(successful)**
 
   ```
   {
@@ -154,7 +156,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response(error)
+  **Sample Response(error)**
 
   ```
   {
@@ -169,25 +171,25 @@ These endpoints manage test objects.
 
 ### 3.2 Channel Management
 
-- #### `GET /channels/status` - Get Channel Status
+- #### `GET /channels/status` - Get Channel Status <span style="float: right;">(<a href="#readme-top">back to top</a>)</span>
 
   _This endpoint returns the status of all channels._
 
-  Query Paramters
+  **Query Paramters**
 
   | Field | Type | Required | Description                                           | Example Value |
   | ----- | ---- | -------- | ----------------------------------------------------- | ------------- |
   | -     | -    | -        | No query paramter is required to execute this command | -             |
 
-  Sample Request
+  **Sample Request**
 
   ```
   GET /channels/status
   ```
 
-  Sample Response (successful)
+  **Sample Response (successful)**
 
-  _Detailed Channel Status Code can be found in `EChannelStatus` Class within [Arbin cti Toolbox](https://github.com/shoufang-w-arbin/Arbin-Toolbox-Python/blob/main/arbintoolbox/src/arbincti/feedback/request_info.py)_
+  _Detailed Channel Status Code can be found in `EChannelStatus` Class within [Arbin CTI Toolbox](https://github.com/shoufang-w-arbin/Arbin-Toolbox-Python/blob/main/arbintoolbox/src/arbincti/feedback/request_info.py)_
 
   ```
   {
@@ -230,7 +232,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response (Error)
+  **Sample Response (Error)**
 
   ```
   { "success": False,
@@ -240,25 +242,24 @@ These endpoints manage test objects.
   ```
 
   <br>
-  <br>
 
-- #### `GET /channels/data/{index}` - Get Specific Channel Data
+- #### `GET /channels/data/{index}` - Get Specific Channel Data <span style="float: right;">(<a href="#readme-top">back to top</a>)</span>
 
   _This endpoint returns the status of a specific channel._
 
-  Path Paramters
+  **Path Paramters**
 
   | Field | Type | Required | Description                                            | Example Value |
   | ----- | ---- | -------- | ------------------------------------------------------ | ------------- |
   | index | int  | ✅       | The channel index from which to fetch data.(0-indexed) | 0             |
 
-  Sample Request
+  **Sample Request**
 
   ```
   GET /channels/data/2
   ```
 
-  Sample Response(successful)
+  **Sample Response(successful)**
 
   ```
   {
@@ -277,31 +278,30 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response(Error)
+  **Sample Response(Error)**
 
   ```
   {
     "success": False,
     "message": "Failed to get channel data.",
-    "error": f"Failed to load data within {FEEDBACK_TIMEOUT} seconds."
+    "error": f"Failed to load data within 3 seconds."
   }
   ```
 
 <br>
-<br>
 
-- #### `POST /channels/start` - Start Channel
+- #### `POST /channels/start` - Start Channel <span style="float: right;">(<a href="#readme-top">back to top</a>)</span>
 
   _This endpoint starts test on one or multiple channels._
 
-  Schema
+  **Schemas**
 
   | Field       | Type      | Required | Description                              | Example Value |
   | ----------- | --------- | -------- | ---------------------------------------- | ------------- |
   | `test_name` | string    | ✅       | test name                                | "test demo"   |
   | `channels`  | list[int] | ✅       | channels are zero-indexed (start from 0) | [0, 1]        |
 
-  Sample Request
+  **Sample Request**
 
   ```
   POST /login
@@ -313,7 +313,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response (successful)
+  **Sample Response (successful)**
 
   ```
   {
@@ -325,7 +325,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response (error)
+  **Sample Response (error)**
 
   ```
   {
@@ -337,18 +337,18 @@ These endpoints manage test objects.
 
 <br>
 
-- #### `POST /channels/stop` - Stop Channel
+- #### `POST /channels/stop` - Stop Channel <span style="float: right;">(<a href="#readme-top">back to top</a>)</span>
 
   _This endpoint stops a selected channel or all channels._
 
-  Schema:
+  **Schema**
 
   | Field           | Type    | Required | Description                                 | Example Value |
   | --------------- | ------- | -------- | ------------------------------------------- | ------------- |
   | `channel_index` | int     | ✅       | List of channel indices to stop (0-indexed) | 0             |
   | `is_stop_all`   | boolean | ✅       | Set to `True` to stop all channels          | False         |
 
-  Sample Request
+  **Sample Request**
 
   ```
   POST /channels/stop
@@ -360,7 +360,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response (successful)
+  **Sample Response (successful)**
 
   ```
   {
@@ -372,7 +372,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response (error)
+  **Sample Response (error)**
 
   ```
   {
@@ -387,23 +387,23 @@ These endpoints manage test objects.
 
 ### 3.3 Schedule Management
 
-- #### `GET /schedules` - Get Schedules
+- #### `GET /schedules` - Get Schedules <span style="float: right;">(<a href="#readme-top">back to top</a>)</span>
 
   _This endpoint returns the names of all schedule files._
 
-  Query Paramters
+  **Query Paramters**
 
   | Field | Type | Required | Description                                           | Example Value |
   | ----- | ---- | -------- | ----------------------------------------------------- | ------------- |
   | -     | -    | -        | No query paramter is required to execute this command | -             |
 
-  Sample Request
+  **Sample Request**
 
   ```
   GET /schedules
   ```
 
-  Sample Response (successful)
+  **Sample Response (successful)**
 
   ```
   {
@@ -416,7 +416,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response (error)
+  **Sample Response (error)**
 
   ```
   {
@@ -428,9 +428,11 @@ These endpoints manage test objects.
 
   <br>
 
-- #### `POST /schedules/assign` - Assign Schedule
+- #### `POST /schedules/assign` - Assign Schedule <span style="float: right;">(<a href="#readme-top">back to top</a>)</span>
 
   _This endpoint assigns schedule file to one or all channels._
+
+  **Schemas**
 
   | Field           | Type    | Required | Description                           | Example Value    |
   | --------------- | ------- | -------- | ------------------------------------- | ---------------- |
@@ -443,7 +445,7 @@ These endpoints manage test objects.
   | `all_assign`    | boolean | ✅       | set to True to assign to all channels | False            |
   | `channel_index` | int     | ✅       | Set to -1 to assign to all channels   | 0                |
 
-  Sample Request
+  **Sample Request**
 
   ```
   {
@@ -457,10 +459,9 @@ These endpoints manage test objects.
     "all_assign": false,
     "channel_index": 1
   }
-
   ```
 
-  Sample Response(successful)
+  **Sample Response(successful)**
 
   ```
   {
@@ -472,7 +473,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response(Error)
+  **Sample Response(Error)**
 
   ```
   {
@@ -489,23 +490,23 @@ These endpoints manage test objects.
 
 ### 3.4 Test Object Management
 
-- #### `GET /test_objects` - Get Test Objects
+- #### `GET /test_objects` - Get Test Objects <span style="float: right;">(<a href="#readme-top">back to top</a>)</span>
 
   _This endpoint returns the name of all test objects._
 
-  Query Paramters
+  **Query Paramters**
 
   | Field | Type | Required | Description                                           | Example Value |
   | ----- | ---- | -------- | ----------------------------------------------------- | ------------- |
   | -     | -    | -        | No query paramter is required to execute this command | -             |
 
-  Sample Request
+  **Sample Request**
 
   ```
   GET /test_objects
   ```
 
-  Sample Response(Successful)
+  **Sample Response(Successful)**
 
   ```
   {
@@ -519,7 +520,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response(Error)
+  **Sample Response(Error)**
 
   ```
   {
@@ -532,10 +533,12 @@ These endpoints manage test objects.
 
   <br>
 
-- #### `POST /test_objects/assign` - Assign Test Objects
+- #### `POST /test_objects/assign` - Assign Test Objects <span style="float: right;">(<a href="#readme-top">back to top</a>)</span>
 
   _This endpoint assigns test object file to one or all channels._
   _CTI Bug: The feedback result may indicate success even if the file assignment fails. We will resolve it as soon as possible._
+
+  **Schemas**
 
   | Field        | Type      | Required | Description                                               | Example Value    |
   | ------------ | --------- | -------- | --------------------------------------------------------- | ---------------- |
@@ -544,7 +547,7 @@ These endpoints manage test objects.
   | `file_type`  | int       | ✅       | Set to `5` when assigning test objects                    | 5                |
   | `channels`   | list[int] | ✅       | List of channel indices to assign the file to (0-indexed) | [1, 2]           |
 
-  Sample Request
+  **Sample Request**
 
   ```
   {
@@ -557,7 +560,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response (Successful)
+  **Sample Response (Successful)**
 
   ```
   {
@@ -574,7 +577,7 @@ These endpoints manage test objects.
   }
   ```
 
-  Sample Response (Error)
+  **Sample Response (Error)**
 
   ```
   "success": False,
