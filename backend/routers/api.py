@@ -340,7 +340,7 @@ async def get_test_objects():
         if feedback.result == feedback.EResult.CTI_BROWSE_DIRECTORY_FAILED:
             return {
                 "success": False,
-                "message": "Failed to get schedule files.",
+                "message": "Failed to get Test Object files.",
                 "error": "CTI internal failure."
             }
 
