@@ -60,7 +60,7 @@ async def login(request: LoginRequest):
             return {
                 "success": True,
                 "message": "Login succeed.",
-                "feedback": feedback
+                "feedback": feedback.to_dict()
             }
 
     except Exception as e:
@@ -278,7 +278,7 @@ async def assign_schedule(request: AssignScheduleRequest):
             return {
                 "success": True,
                 "message": "Assign schedule successfully.",
-                "feedback": feedback
+                "feedback": feedback.to_dict()
             }
         elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_INDEX:
             return {
@@ -296,7 +296,7 @@ async def assign_schedule(request: AssignScheduleRequest):
             return {
                 "success": False,
                 "message": "Failed to assign the schedule.",
-                "error": feedback
+                "error": feedback.to_dict()
             }
 
     except Exception as e:
@@ -340,7 +340,7 @@ async def get_test_objects():
         if feedback.result == feedback.EResult.CTI_BROWSE_DIRECTORY_FAILED:
             return {
                 "success": False,
-                "message": "Failed to get schedule files.",
+                "message": "Failed to get Test Object files.",
                 "error": "CTI internal failure."
             }
 
@@ -398,7 +398,7 @@ async def assign_test_objects(request: AssignFileRequest):
             return {
                 "success": True,
                 "message": "Assign files successfully",
-                "feedback": feedback
+                "feedback": feedback.to_dict()
             }
         elif feedback.result == feedback.EAssignToken.CTI_ASSIGN_FAILED:
             return {
@@ -532,7 +532,7 @@ async def start_channel(request: StartChannelRequest):
             return {
                 "success": True,
                 "message": "Channel started successfully.",
-                "feedback": feedback
+                "feedback": feedback.to_dict()
             }
         elif feedback.result == feedback.EStartToken.CTI_START_INDEX:
             return {
@@ -769,7 +769,7 @@ async def stop_channel(request: StopChannelRequest):
             return {
                 "success": True,
                 "message": "Channel stopped successfully.",
-                "feedback": feedback
+                "feedback": feedback.to_dict()
             }
         elif feedback.result == feedback.EStopToken.STOP_INDEX:
             return {

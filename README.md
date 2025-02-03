@@ -121,6 +121,8 @@ Ensure you meet the following prerequisties before installation:
 
    _(Replace `192.168.1.100` with your actual local IP)_
 
+   Detailed API schemas, sample requests and sample responses can be found in [backend/README.md](backend/README.md)
+
 4. **Access FastAPI Swagger UI**
 
    _Replace `http://127.0.0.1:8000` with the actual server address where FastAPI is running._
@@ -145,6 +147,14 @@ Ensure you meet the following prerequisties before installation:
 
 1. To Sign in, use the pc's ip address where you install the backend.
 2. The status of channels, schedule file and test object file will be updated automatically once you re-fresh the whole page
+
+## TODO
+
+This api is only for demo usage, to put it into development environment, more efforts will needs to be put in:
+
+- [ ] Add http error code for failure responses.
+- [ ] Handle incorrect API request inputs for endpoints such as `/test_objects/assign` and `/schedules/assign`.
+- [ ] Replace error code using meaningful string value in the feedback.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
