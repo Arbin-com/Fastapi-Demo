@@ -2,7 +2,7 @@
 
 <a id="readme-top"></a>
 
-<details>
+<details open>
   <summary>Table of Contents</summary>
   <ol>
     <li>
@@ -20,7 +20,6 @@
         <li><a href="#34-test-object-management">Test Object Management</a></li>
       </ul>
     </li>
-
   </ol>
 </details>
 
